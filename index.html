@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>권민석이 심심해서 만든 뭔지모를 홈페이지</title>
+    
+    <!-- Firebase SDK (Compat 모드) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
     <style>
         * { box-sizing: border-box; }
         body {
@@ -206,7 +211,6 @@
             word-break: break-all;
         }
         
-        /* 사진 저장 컨테이너 */
         .img-wrapper {
             position: relative;
             display: inline-block;
@@ -334,7 +338,6 @@
 
         .extra-option-box { background: #f0f9ff; border: 1px dashed #0284c7; padding: 10px; border-radius: 6px; margin-bottom: 10px; display: none; }
 
-        /* 에디터 툴바 */
         .editor-toolbar {
             background: #f0f9ff; border: 1px solid #bfdbfe; border-bottom: none; padding: 5px; border-radius: 6px 6px 0 0; display: flex; flex-wrap: wrap; gap: 4px;
         }
@@ -537,19 +540,24 @@
     </div>
 
     <script>
-        // 새로운 슈퍼 관리자 전화번호 지정
+        // 1. Firebase 초기화 설정
+        const firebaseConfig = {
+            apiKey: "AIzaSyCJYdTKfJTqhArQ-jdfZ-nK7LbxcSq02cs",
+            authDomain: "dhdhddh1-nina.firebaseapp.com",
+            projectId: "dhdhddh1-nina",
+            storageBucket: "dhdhddh1-nina.firebasestorage.app",
+            messagingSenderId: "956066916212",
+            appId: "1:956066916212:web:4d27fe0d58d33cca97ee21",
+            measurementId: "G-P6LKH4QTSY"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         const ADMIN_PHONE = '01022712986';
 
-        // 데이터베이스 초기화 (요청에 따라 기존 계정 정보 전체 초기화)
-        if (!localStorage.getItem('v3_reset_done')) {
-            localStorage.setItem('user_db', JSON.stringify({}));
-            localStorage.setItem('current_user', 'null');
-            localStorage.setItem('v3_reset_done', 'true');
-        }
-
-        let posts = JSON.parse(localStorage.getItem('blog_posts') || '[]');
-        let deletedPosts = JSON.parse(localStorage.getItem('deleted_posts') || '[]');
-        let users = JSON.parse(localStorage.getItem('user_db') || '{}');
+        let posts = [];
+        let deletedPosts = [];
         let currentUser = JSON.parse(localStorage.getItem('current_user') || 'null');
         
         let isNickChecked = false;
@@ -563,8 +571,31 @@
 
         window.onload = function() {
             checkLoginStatus();
-            showBoard('전체');
+            listenRealtimePosts();
+            listenRealtimeDeletedPosts();
         };
+
+        // 실시간 포스트 수신 (Firebase)
+        function listenRealtimePosts() {
+            db.collection("posts").orderBy("createdAt", "desc").onSnapshot(snapshot => {
+                posts = [];
+                snapshot.forEach(doc => {
+                    posts.push({ id: doc.id, ...doc.data() });
+                });
+                showBoard(currentCategoryFilter);
+            });
+        }
+
+        // 실시간 삭제된 포스트 수신 (Firebase)
+        function listenRealtimeDeletedPosts() {
+            db.collection("deleted_posts").orderBy("deletedAt", "desc").onSnapshot(snapshot => {
+                deletedPosts = [];
+                snapshot.forEach(doc => {
+                    deletedPosts.push({ id: doc.id, ...doc.data() });
+                });
+                if (currentCategoryFilter === '삭제된글관리') showBoard('삭제된글관리');
+            });
+        }
 
         function checkLoginStatus() {
             if (currentUser) {
@@ -585,14 +616,14 @@
         }
         function closeSignUpModal() { document.getElementById('signupModal').style.display = 'none'; }
 
-        // 닉네임 중복 체크
-        function checkNickDuplicate() {
+        // 닉네임 중복 체크 (Firebase DB 검수)
+        async function checkNickDuplicate() {
             const nick = document.getElementById('regNick').value.trim();
             if (!nick) return alert('닉네임을 입력해 주세요.');
 
-            const exists = Object.values(users).some(u => u.nick === nick);
-            if (exists || nick === '주인장' || nick === '관리자') {
-                alert('이미 존재하는 닉네임입니다. 다른 닉네임을 사용해 주세요.');
+            const snapshot = await db.collection("users").where("nick", "==", nick).get();
+            if (!snapshot.empty || nick === '주인장' || nick === '관리자') {
+                alert('이미 존재하는 닉네임입니다.');
                 isNickChecked = false;
             } else {
                 alert('사용 가능한 닉네임입니다!');
@@ -606,46 +637,48 @@
             checkedNickValue = '';
         }
 
-        function processSignUp() {
+        // 회원가입
+        async function processSignUp() {
             const phone = document.getElementById('regPhone').value.replace(/[^0-9]/g, '');
             const pw = document.getElementById('regPw').value.trim();
             const nick = document.getElementById('regNick').value.trim();
 
             if (!phone || !pw || !nick) return alert('모든 항목을 입력해 주세요.');
 
-            if (users[phone]) {
-                return alert('⚠️ 이미 가입된 전화번호입니다!\n보안 방침상 등록된 전화번호는 비밀번호 수정이 불가능합니다.');
+            const userDoc = await db.collection("users").doc(phone).get();
+            if (userDoc.exists()) {
+                return alert('⚠️ 이미 가입된 전화번호입니다!\n보안 방침상 비밀번호 수정이 불가능합니다.');
             }
 
             if (!isNickChecked || checkedNickValue !== nick) {
                 return alert('닉네임 중복 확인을 진행해 주세요.');
             }
 
-            users[phone] = { pw: pw, nick: nick };
-            localStorage.setItem('user_db', JSON.stringify(users));
+            await db.collection("users").doc(phone).set({ pw, nick });
             alert('회원가입이 완료되었습니다! 로그인해 주세요.');
             closeSignUpModal();
         }
 
-        function login() {
+        // 로그인
+        async function login() {
             const phone = document.getElementById('userPhone').value.trim().replace(/[^0-9]/g, '');
             const pw = document.getElementById('userPw').value.trim();
 
             if (!phone || !pw) return alert('전화번호와 비밀번호를 입력하세요.');
 
-            const user = users[phone];
+            const userDoc = await db.collection("users").doc(phone).get();
 
-            // 지정된 관리자 번호 로그인 예외 처리
             if (phone === ADMIN_PHONE) {
-                if (user && user.pw !== pw) return alert('비밀번호가 올바르지 않습니다.');
-                currentUser = { phone: ADMIN_PHONE, nick: user ? user.nick : '주인장(관리자)' };
+                if (userDoc.exists() && userDoc.data().pw !== pw) return alert('비밀번호가 올바르지 않습니다.');
+                const nick = userDoc.exists() ? userDoc.data().nick : '주인장(관리자)';
+                currentUser = { phone: ADMIN_PHONE, nick: nick };
                 localStorage.setItem('current_user', JSON.stringify(currentUser));
                 checkLoginStatus();
                 return showBoard(currentCategoryFilter);
             }
 
-            if (user && user.pw === pw) {
-                currentUser = { phone: phone, nick: user.nick };
+            if (userDoc.exists() && userDoc.data().pw === pw) {
+                currentUser = { phone: phone, nick: userDoc.data().nick };
                 localStorage.setItem('current_user', JSON.stringify(currentUser));
                 checkLoginStatus();
                 showBoard(currentCategoryFilter);
@@ -674,7 +707,7 @@
                         const canvas = document.createElement('canvas');
                         let width = img.width;
                         let height = img.height;
-                        const max_size = 1000;
+                        const max_size = 800;
 
                         if (width > max_size) {
                             height = Math.round((height * max_size) / width);
@@ -686,7 +719,7 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
 
-                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
                         const imgHtml = `<img src="${compressedDataUrl}"><br>`;
                         document.getElementById('editorBody').focus();
                         document.execCommand('insertHTML', false, imgHtml);
@@ -736,7 +769,8 @@
 
         function closeWriteModal() { document.getElementById('writeModal').style.display = 'none'; }
 
-        function savePost() {
+        // 포스트 저장 (Firebase DB)
+        async function savePost() {
             const category = document.getElementById('postCategory').value;
             const title = document.getElementById('postTitle').value.trim();
             const content = document.getElementById('editorBody').innerHTML.trim();
@@ -745,27 +779,26 @@
 
             if (!title || !content) return alert("제목과 본문을 입력하세요.");
 
+            const postData = {
+                category, title, content,
+                mapQuery: travelCategories.includes(category) ? mapQuery : null,
+                youtubeUrl: youtubeCategories.includes(category) ? youtubeUrl : null
+            };
+
             if (editingPostId) {
-                const idx = posts.findIndex(p => p.id === editingPostId);
-                posts[idx] = {
-                    ...posts[idx], category, title, content,
-                    mapQuery: travelCategories.includes(category) ? mapQuery : null,
-                    youtubeUrl: youtubeCategories.includes(category) ? youtubeUrl : null
-                };
+                await db.collection("posts").doc(editingPostId).update(postData);
             } else {
-                const newPost = {
-                    id: Date.now(), category, title, content,
-                    mapQuery: travelCategories.includes(category) ? mapQuery : null,
-                    youtubeUrl: youtubeCategories.includes(category) ? youtubeUrl : null,
+                await db.collection("posts").add({
+                    ...postData,
                     authorNick: currentUser.nick,
                     authorPhone: currentUser.phone,
                     date: new Date().toLocaleDateString('ko-KR'),
-                    views: 0, comments: []
-                };
-                posts.unshift(newPost);
+                    createdAt: Date.now(),
+                    views: 0,
+                    comments: []
+                });
             }
 
-            localStorage.setItem('blog_posts', JSON.stringify(posts));
             closeWriteModal();
             showBoard(category);
         }
@@ -798,7 +831,7 @@
                     rowsHtml += `
                         <tr>
                             <td><span class="badge">${post.category}</span></td>
-                            <td class="title-cell" onclick="viewPost(${post.id})">${escapeHtml(post.title)}${iconTag}${cBadge}</td>
+                            <td class="title-cell" onclick="viewPost('${post.id}')">${escapeHtml(post.title)}${iconTag}${cBadge}</td>
                             <td>${post.authorNick || '익명'}</td>
                             <td>${post.date}</td>
                             <td>${post.views || 0}</td>
@@ -830,12 +863,12 @@
             `;
         }
 
-        function viewPost(postId) {
+        async function viewPost(postId) {
             const post = posts.find(p => p.id === postId);
             if (!post) return;
 
-            post.views = (post.views || 0) + 1;
-            localStorage.setItem('blog_posts', JSON.stringify(posts));
+            // 조회수 증가
+            db.collection("posts").doc(postId).update({ views: (post.views || 0) + 1 });
 
             let mapHtml = post.mapQuery ? `
                 <div class="media-embed-box">
@@ -853,11 +886,10 @@
             const canManage = currentUser && (currentUser.phone === post.authorPhone || currentUser.phone === ADMIN_PHONE);
             let actionBtns = canManage ? `
                 <div>
-                    <button class="btn-opt btn-edit" onclick="openWriteModal(${post.id})">수정</button>
-                    <button class="btn-opt btn-delete" onclick="deletePost(${post.id})">삭제</button>
+                    <button class="btn-opt btn-edit" onclick="openWriteModal('${post.id}')">수정</button>
+                    <button class="btn-opt btn-delete" onclick="deletePost('${post.id}')">삭제</button>
                 </div>` : '';
 
-            // 이미지에 다운로드(저장) 버튼 감싸기 처리
             let processedContent = post.content.replace(/<img[^>]*src="([^"]*)"[^>]*>/gi, function(match, src) {
                 return `
                     <div class="img-wrapper">
@@ -874,7 +906,7 @@
                         <span>카테고리: <b>${post.category}</b></span>
                         <span>작성자: <b>${post.authorNick}</b></span>
                         <span>작성일: ${post.date}</span>
-                        <span>조회수: ${post.views}</span>
+                        <span>조회수: ${post.views + 1}</span>
                     </div>
                     ${mapHtml}
                     ${ytHtml}
@@ -888,7 +920,7 @@
                         <h3>💬 댓글</h3>
                         <div class="comment-write-box">
                             <textarea id="commentInput" placeholder="${currentUser ? '댓글 입력...' : '로그인 후 작성 가능'}" ${!currentUser ? 'disabled' : ''}></textarea>
-                            <button onclick="addComment(${post.id})" ${!currentUser ? 'disabled' : ''}>등록</button>
+                            <button onclick="addComment('${post.id}')" ${!currentUser ? 'disabled' : ''}>등록</button>
                         </div>
                         <div>${renderCommentsHtml(post)}</div>
                     </div>
@@ -896,7 +928,6 @@
             `;
         }
 
-        // 이미지 파일 바로 다운로드 저장
         function downloadImage(src) {
             const a = document.createElement('a');
             a.href = src;
@@ -919,11 +950,11 @@
                         <div>${escapeHtml(c.text)}</div>
                         <div class="comment-actions">
                             ${currentUser ? `<a onclick="toggleReplyBox(${c.id})">답글</a>` : ''}
-                            ${canDel ? `<a onclick="deleteComment(${post.id}, ${c.id})" style="color:#ef4444;">삭제</a>` : ''}
+                            ${canDel ? `<a onclick="deleteComment('${post.id}', ${c.id})" style="color:#ef4444;">삭제</a>` : ''}
                         </div>
                         <div id="replyBox_${c.id}" class="reply-box" style="display:none;">
                             <input type="text" id="replyInput_${c.id}" placeholder="답글 입력...">
-                            <button onclick="addReply(${post.id}, ${c.id})">등록</button>
+                            <button onclick="addReply('${post.id}', ${c.id})">등록</button>
                         </div>
                     </div>
                 `;
@@ -935,7 +966,7 @@
                             <div class="comment-meta"><b>↳ ${r.authorNick}</b><span>${r.date}</span></div>
                             <div>${escapeHtml(r.text)}</div>
                             <div class="comment-actions">
-                                ${canDelR ? `<a onclick="deleteComment(${post.id}, ${r.id})" style="color:#ef4444;">삭제</a>` : ''}
+                                ${canDelR ? `<a onclick="deleteComment('${post.id}', ${r.id})" style="color:#ef4444;">삭제</a>` : ''}
                             </div>
                         </div>
                     `;
@@ -944,16 +975,24 @@
             return html;
         }
 
-        function addComment(postId) {
+        async function addComment(postId) {
             const input = document.getElementById('commentInput');
             const text = input.value.trim();
             if (!text) return;
 
             const post = posts.find(p => p.id === postId);
-            if (!post.comments) post.comments = [];
-            post.comments.push({ id: Date.now(), authorNick: currentUser.nick, authorPhone: currentUser.phone, text, date: new Date().toLocaleString('ko-KR'), parentId: null });
+            const comments = post.comments || [];
 
-            localStorage.setItem('blog_posts', JSON.stringify(posts));
+            comments.push({
+                id: Date.now(),
+                authorNick: currentUser.nick,
+                authorPhone: currentUser.phone,
+                text,
+                date: new Date().toLocaleString('ko-KR'),
+                parentId: null
+            });
+
+            await db.collection("posts").doc(postId).update({ comments });
             viewPost(postId);
         }
 
@@ -962,34 +1001,45 @@
             b.style.display = b.style.display === 'none' ? 'flex' : 'none';
         }
 
-        function addReply(postId, parentId) {
+        async function addReply(postId, parentId) {
             const input = document.getElementById(`replyInput_${parentId}`);
             const text = input.value.trim();
             if (!text) return;
 
             const post = posts.find(p => p.id === postId);
-            post.comments.push({ id: Date.now(), authorNick: currentUser.nick, authorPhone: currentUser.phone, text, date: new Date().toLocaleString('ko-KR'), parentId });
+            const comments = post.comments || [];
 
-            localStorage.setItem('blog_posts', JSON.stringify(posts));
+            comments.push({
+                id: Date.now(),
+                authorNick: currentUser.nick,
+                authorPhone: currentUser.phone,
+                text,
+                date: new Date().toLocaleString('ko-KR'),
+                parentId
+            });
+
+            await db.collection("posts").doc(postId).update({ comments });
             viewPost(postId);
         }
 
-        function deleteComment(postId, cId) {
+        async function deleteComment(postId, cId) {
             if (!confirm("삭제하시겠습니까?")) return;
             const post = posts.find(p => p.id === postId);
-            post.comments = post.comments.filter(c => c.id !== cId && c.parentId !== cId);
-            localStorage.setItem('blog_posts', JSON.stringify(posts));
+            const comments = post.comments.filter(c => c.id !== cId && c.parentId !== cId);
+            await db.collection("posts").doc(postId).update({ comments });
             viewPost(postId);
         }
 
-        function deletePost(postId) {
+        async function deletePost(postId) {
             if (!confirm("삭제하시겠습니까?")) return;
-            const idx = posts.findIndex(p => p.id === postId);
-            if (idx !== -1) {
-                deletedPosts.unshift({ ...posts[idx], deletedBy: currentUser.nick, deletedAt: new Date().toLocaleString('ko-KR') });
-                posts.splice(idx, 1);
-                localStorage.setItem('blog_posts', JSON.stringify(posts));
-                localStorage.setItem('deleted_posts', JSON.stringify(deletedPosts));
+            const post = posts.find(p => p.id === postId);
+            if (post) {
+                await db.collection("deleted_posts").add({
+                    ...post,
+                    deletedBy: currentUser.nick,
+                    deletedAt: Date.now()
+                });
+                await db.collection("posts").doc(postId).delete();
                 showBoard(currentCategoryFilter);
             }
         }
@@ -999,14 +1049,14 @@
             if (deletedPosts.length === 0) {
                 rows = `<tr><td colspan="5" style="text-align:center; padding:20px; color:#888;">삭제된 글이 없습니다.</td></tr>`;
             } else {
-                deletedPosts.forEach((post, idx) => {
+                deletedPosts.forEach((post) => {
                     rows += `
                         <tr>
                             <td><span class="badge">${post.category}</span></td>
                             <td><b>${escapeHtml(post.title)}</b> (${post.authorNick})</td>
                             <td>${post.deletedBy}</td>
-                            <td>${post.deletedAt}</td>
-                            <td><button class="btn-opt btn-edit" onclick="restorePost(${idx})">복구</button></td>
+                            <td>${new Date(post.deletedAt).toLocaleString('ko-KR')}</td>
+                            <td><button class="btn-opt btn-edit" onclick="restorePost('${post.id}')">복구</button></td>
                         </tr>
                     `;
                 });
@@ -1034,13 +1084,18 @@
             `;
         }
 
-        function restorePost(idx) {
-            const res = deletedPosts.splice(idx, 1)[0];
-            delete res.deletedBy; delete res.deletedAt;
-            posts.unshift(res);
-            localStorage.setItem('blog_posts', JSON.stringify(posts));
-            localStorage.setItem('deleted_posts', JSON.stringify(deletedPosts));
-            showBoard('삭제된글관리');
+        async function restorePost(deletedId) {
+            const delDoc = deletedPosts.find(p => p.id === deletedId);
+            if (delDoc) {
+                const restored = { ...delDoc };
+                delete restored.id;
+                delete restored.deletedBy;
+                delete restored.deletedAt;
+
+                await db.collection("posts").add(restored);
+                await db.collection("deleted_posts").doc(deletedId).delete();
+                showBoard('삭제된글관리');
+            }
         }
 
         function openAllMapModal(cat) {
@@ -1053,7 +1108,7 @@
                 list.forEach(p => {
                     html += `
                         <div style="border:1px solid #bae6fd; padding:10px; border-radius:6px; margin-bottom:10px; background:#f0f9ff;">
-                            <h4 style="margin:0 0 6px 0; color:#0369a1; cursor:pointer;" onclick="closeAllMapModal(); viewPost(${p.id});">📌 ${escapeHtml(p.title)} (${p.mapQuery})</h4>
+                            <h4 style="margin:0 0 6px 0; color:#0369a1; cursor:pointer;" onclick="closeAllMapModal(); viewPost('${p.id}');">📌 ${escapeHtml(p.title)} (${p.mapQuery})</h4>
                             <iframe class="media-iframe" src="https://maps.google.com/maps?q=${encodeURIComponent(p.mapQuery)}&t=&z=14&ie=UTF8&iwloc=&output=embed" style="height:200px;"></iframe>
                         </div>
                     `;
