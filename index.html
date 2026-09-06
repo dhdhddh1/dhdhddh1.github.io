@@ -3,104 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>취미 & 리뷰 블로그</title>
+    <title>파스텔 블루 취미 & 리뷰 블로그</title>
     <style>
         * { box-sizing: border-box; }
         body {
             font-family: 'Noto Sans KR', sans-serif;
-            background-color: #f8f9fa;
-            color: #333;
+            background-color: #f0f7f9;
+            color: #334155;
             margin: 0;
             padding: 0;
         }
         
-        /* 상단 헤더 & 로그인 영역 */
+        /* 헤더 디자인 */
         header {
-            background-color: #fff;
-            border-bottom: 1px solid #e9ecef;
+            background-color: #dbeafe;
+            border-bottom: 2px solid #bfdbfe;
             padding: 20px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .logo-title h1 { margin: 0; font-size: 24px; color: #212529; }
-        .logo-title p { margin: 5px 0 0; color: #868e96; font-size: 14px; }
+        .logo-title h1 { margin: 0; font-size: 24px; color: #1e40af; }
+        .logo-title p { margin: 5px 0 0; color: #3b82f6; font-size: 14px; }
         
-        .auth-box {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
+        /* 로그인 / 회원가입 */
+        .auth-box { display: flex; gap: 8px; align-items: center; }
         .auth-box input {
             padding: 6px 10px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
+            border: 1px solid #93c5fd;
+            border-radius: 6px;
             font-size: 13px;
-            width: 110px;
+            outline: none;
+            width: 100px;
         }
         .auth-box button {
             padding: 6px 12px;
             border: none;
-            background-color: #4c6ef5;
+            background-color: #3b82f6;
             color: white;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 13px;
+            font-weight: bold;
         }
-        .auth-box button.btn-signup { background-color: #32b8c4; }
-        .user-info { font-weight: bold; color: #4c6ef5; }
+        .auth-box button.btn-signup { background-color: #60a5fa; }
+        .auth-box button:hover { opacity: 0.9; }
 
-        /* 메인 컨테이너 (레이아웃) */
+        /* 메인 레이아웃 */
         .container {
             display: flex;
             max-width: 1100px;
             margin: 30px auto;
             padding: 0 20px;
-            gap: 30px;
+            gap: 25px;
         }
 
         /* 사이드바 - 카테고리 */
         aside {
-            width: 250px;
-            background: white;
+            width: 240px;
+            background: #ffffff;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-radius: 12px;
+            border: 1px solid #e0f2fe;
+            box-shadow: 0 4px 12px rgba(186, 230, 253, 0.3);
             height: fit-content;
         }
-        aside h3 { margin-top: 0; border-bottom: 2px solid #333; padding-bottom: 10px; }
+        aside h3 { 
+            margin-top: 0; 
+            border-bottom: 2px solid #93c5fd; 
+            padding-bottom: 10px; 
+            color: #1d4ed8;
+            cursor: pointer;
+        }
         
-        .category-group { margin-bottom: 20px; }
-        .category-title { font-weight: bold; color: #495057; margin-bottom: 8px; display: block; }
-        .sub-category { list-style: none; padding-left: 10px; margin: 0; }
-        .sub-category li { margin-bottom: 6px; }
+        .category-group { margin-bottom: 18px; }
+        .category-title { font-weight: bold; color: #2563eb; margin-bottom: 6px; display: block; font-size: 15px; }
+        .sub-category { list-style: none; padding-left: 8px; margin: 0; }
+        .sub-category li { margin-bottom: 5px; }
         .sub-category a {
             text-decoration: none;
-            color: #868e96;
-            font-size: 14px;
-            transition: color 0.2s;
+            color: #64748b;
+            font-size: 13.5px;
+            transition: all 0.2s;
+            cursor: pointer;
         }
-        .sub-category a:hover { color: #4c6ef5; font-weight: bold; }
+        .sub-category a:hover, .sub-category a.active { 
+            color: #1d4ed8; 
+            font-weight: bold; 
+        }
 
         /* 메인 콘텐츠 영역 */
         main { flex: 1; }
+
+        /* 글 작성 폼 파스텔 카드 */
+        .write-card {
+            background: white;
+            padding: 20px 25px;
+            border-radius: 12px;
+            border: 1px solid #bae6fd;
+            box-shadow: 0 4px 12px rgba(186, 230, 253, 0.2);
+            margin-bottom: 25px;
+        }
+        .write-card h3 { margin-top: 0; color: #1e40af; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; color: #1e3a8a; }
+        .form-row { display: flex; gap: 10px; }
+        
+        select, input[type="text"], textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #bfdbfe;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            background-color: #f8fafc;
+        }
+        select:focus, input[type="text"]:focus, textarea:focus {
+            border-color: #3b82f6;
+            background-color: #fff;
+        }
+        
+        textarea { height: 100px; resize: vertical; }
+        .char-count { text-align: right; font-size: 12px; color: #64748b; margin-top: 3px; }
+        
+        .btn-submit {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            font-size: 15px;
+        }
+        .btn-submit:hover { background-color: #1d4ed8; }
+
+        /* 작성된 게시글 카드 */
         .post {
             background: white;
             padding: 25px;
             margin-bottom: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-radius: 12px;
+            border: 1px solid #e0f2fe;
+            box-shadow: 0 4px 12px rgba(186, 230, 253, 0.2);
         }
-        .post h2 { margin-top: 0; }
-        .post .date { color: #888; font-size: 0.85em; }
+        .post-header { display: flex; justify-content: space-between; align-items: center; }
+        .post h2 { margin: 0; color: #0f172a; font-size: 20px; }
+        .post-badge { 
+            background: #eff6ff; 
+            color: #2563eb; 
+            padding: 4px 10px; 
+            border-radius: 12px; 
+            font-size: 12px; 
+            font-weight: bold;
+            border: 1px solid #bfdbfe;
+        }
+        .post .date { color: #94a3b8; font-size: 0.85em; margin: 8px 0 15px 0; }
+        .post-content { line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
+        
+        /* 이미지 갤러리 그리드 (최대 30장 대응) */
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .image-gallery img {
+            width: 100%;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
     </style>
 </head>
 <body>
 
+    <!-- 헤더 -->
     <header>
         <div class="logo-title">
-            <h1>🎧 취미 & 리뷰 아카이브</h1>
-            <p>음악, 애니, 여행 이야기를 모아두는 블로그</p>
+            <h1>🎵 파스텔 블루 아카이브</h1>
+            <p>취미, 음악, 애니, 여행 이야기를 전하는 개인 블로그</p>
         </div>
         <div class="auth-box" id="authBox">
             <input type="text" id="username" placeholder="아이디">
@@ -111,97 +195,238 @@
     </header>
 
     <div class="container">
+        <!-- 사이드바 카테고리 -->
         <aside>
-            <h3>카테고리</h3>
+            <h3 onclick="filterCategory('전체')">📂 전체 보기</h3>
             
             <div class="category-group">
                 <span class="category-title">🎵 음악</span>
                 <ul class="sub-category">
-                    <li><a href="#">ㆍ 악기 연주 & 연습</a></li>
-                    <li><a href="#">ㆍ 음반 / 앨범 리뷰</a></li>
-                    <li><a href="#">ㆍ 음악 장비 추천</a></li>
-                    <li><a href="#">ㆍ 자작곡 & 미디(MIDI)</a></li>
-                    <li><a href="#">ㆍ 내 인생 곡 추천</a></li>
+                    <li><a onclick="filterCategory('음반 / 앨범')">ㆍ 음반 / 앨범</a></li>
+                    <li><a onclick="filterCategory('악기 리뷰')">ㆍ 악기 리뷰</a></li>
+                    <li><a onclick="filterCategory('연주 / 연습')">ㆍ 연주 / 연습</a></li>
+                    <li><a onclick="filterCategory('기타 등등')">ㆍ 기타 등등</a></li>
                 </ul>
             </div>
 
             <div class="category-group">
                 <span class="category-title">🎬 애니메이션</span>
                 <ul class="sub-category">
-                    <li><a href="#">ㆍ 분기별 신작 감상평</a></li>
-                    <li><a href="#">ㆍ 명작 추천 & 분석</a></li>
-                    <li><a href="#">ㆍ 피규어 & 굿즈 개봉기</a></li>
-                    <li><a href="#">ㆍ 성우 & OST 이야기</a></li>
-                    <li><a href="#">ㆍ 극장판 애니 리뷰</a></li>
+                    <li><a onclick="filterCategory('분기별 신작')">ㆍ 분기별 신작</a></li>
+                    <li><a onclick="filterCategory('명작 추천')">ㆍ 명작 추천</a></li>
+                    <li><a onclick="filterCategory('피규어/굿즈')">ㆍ 피규어/굿즈</a></li>
+                    <li><a onclick="filterCategory('성우/ost')">ㆍ 성우/ost</a></li>
+                    <li><a onclick="filterCategory('캐릭터')">ㆍ 캐릭터</a></li>
                 </ul>
             </div>
 
             <div class="category-group">
                 <span class="category-title">✈️ 여행</span>
                 <ul class="sub-category">
-                    <li><a href="#">ㆍ 국내 여행 기록</a></li>
-                    <li><a href="#">ㆍ 해외 여행 정보</a></li>
-                    <li><a href="#">ㆍ 맛집 & 카페 탐방</a></li>
-                    <li><a href="#">ㆍ 성지순례 (애니/영화)</a></li>
-                    <li><a href="#">ㆍ 캠핑 & 차박</a></li>
+                    <li><a onclick="filterCategory('국내')">ㆍ 국내</a></li>
+                    <li><a onclick="filterCategory('일본')">ㆍ 일본</a></li>
+                    <li><a onclick="filterCategory('맛집/카페')">ㆍ 맛집/카페</a></li>
+                    <li><a onclick="filterCategory('성지순례')">ㆍ 성지순례</a></li>
+                    <li><a onclick="filterCategory('쇼핑')">ㆍ 쇼핑</a></li>
                 </ul>
             </div>
 
             <div class="category-group">
                 <span class="category-title">📦 기타</span>
                 <ul class="sub-category">
-                    <li><a href="#">ㆍ 일상 수다</a></li>
-                    <li><a href="#">ㆍ 게이밍 & IT 기기</a></li>
-                    <li><a href="#">ㆍ 독서 & 도서 추천</a></li>
-                    <li><a href="#">ㆍ 블로그 업데이트 소식</a></li>
+                    <li><a onclick="filterCategory('일상')">ㆍ 일상</a></li>
+                    <li><a onclick="filterCategory('게임')">ㆍ 게임</a></li>
+                    <li><a onclick="filterCategory('독서')">ㆍ 독서</a></li>
+                    <li><a onclick="filterCategory('이것좀 추가해라')">ㆍ 이것좀 추가해라</a></li>
                 </ul>
             </div>
         </aside>
 
+        <!-- 메인 콘텐츠 영역 -->
         <main>
-            <div class="post">
-                <h2>첫 번째 리뷰: 카테고리 및 회원가입 개설! 🎉</h2>
-                <p class="date">2026-09-07</p>
-                <p>이제 오른쪽 상단에서 아이디와 비밀번호를 입력해 회원가입과 로그인을 테스트해볼 수 있습니다.</p>
-                <p>좌측 사이드바에는 음악, 애니메이션, 여행, 기타 카테고리가 분류되어 있습니다.</p>
+            <!-- 글 작성 카드 -->
+            <div class="write-card">
+                <h3>✍️ 새 포스팅 작성하기</h3>
+                <div class="form-group form-row">
+                    <div style="flex: 1;">
+                        <label>카테고리 선택</label>
+                        <select id="postCategory">
+                            <option value="음반 / 앨범">음악 - 음반 / 앨범</option>
+                            <option value="악기 리뷰">음악 - 악기 리뷰</option>
+                            <option value="연주 / 연습">음악 - 연주 / 연습</option>
+                            <option value="기타 등등">음악 - 기타 등등</option>
+                            <option value="분기별 신작">애니 - 분기별 신작</option>
+                            <option value="명작 추천">애니 - 명작 추천</option>
+                            <option value="피규어/굿즈">애니 - 피규어/굿즈</option>
+                            <option value="성우/ost">애니 - 성우/ost</option>
+                            <option value="캐릭터">애니 - 캐릭터</option>
+                            <option value="국내">여행 - 국내</option>
+                            <option value="일본">여행 - 일본</option>
+                            <option value="맛집/카페">여행 - 맛집/카페</option>
+                            <option value="성지순례">여행 - 성지순례</option>
+                            <option value="쇼핑">여행 - 쇼핑</option>
+                            <option value="일상">기타 - 일상</option>
+                            <option value="게임">기타 - 게임</option>
+                            <option value="독서">기타 - 독서</option>
+                            <option value="이것좀 추가해라">기타 - 이것좀 추가해라</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>글 제목</label>
+                    <input type="text" id="postTitle" placeholder="제목을 입력하세요">
+                </div>
+                <div class="form-group">
+                    <label>본문 내용 (최대 1000자)</label>
+                    <textarea id="postContent" maxlength="1000" placeholder="내용을 입력하세요..." oninput="updateCharCount()"></textarea>
+                    <div class="char-count"><span id="charCount">0</span> / 1000자</div>
+                </div>
+                <div class="form-group">
+                    <label>사진 첨부 (최대 30장 선택 가능)</label>
+                    <input type="file" id="postImages" accept="image/*" multiple onchange="checkImageCount(this)">
+                </div>
+                <button class="btn-submit" onclick="addPost()">게시글 등록하기</button>
             </div>
+
+            <!-- 작성된 글 목록이 들어가는 위치 -->
+            <div id="postsList"></div>
         </main>
     </div>
 
     <script>
-        // 회원가입
-        function signUp() {
-            const id = document.getElementById('username').value;
-            const pw = document.getElementById('password').value;
+        let posts = JSON.parse(localStorage.getItem('blog_posts') || '[]');
+        let currentFilter = '전체';
 
-            if(!id || !pw) {
-                alert('아이디와 비밀번호를 입력해주세요.');
-                return;
-            }
+        // 페이지 로드시 글 출력
+        window.onload = function() {
+            renderPosts();
+        };
 
-            if(localStorage.getItem('user_' + id)) {
-                alert('이미 존재하는 아이디입니다.');
-            } else {
-                localStorage.setItem('user_' + id, pw);
-                alert('회원가입이 완료되었습니다! 로그인해보세요.');
-                document.getElementById('username').value = '';
-                document.getElementById('password').value = '';
+        // 글자 수 실시간 체크
+        function updateCharCount() {
+            const content = document.getElementById('postContent').value;
+            document.getElementById('charCount').innerText = content.length;
+        }
+
+        // 사진 30장 제한 체크
+        function checkImageCount(input) {
+            if (input.files.length > 30) {
+                alert("사진은 최대 30장까지 첨부할 수 있습니다.");
+                input.value = "";
             }
         }
 
-        // 로그인
+        // 글 등록 기능
+        function addPost() {
+            const category = document.getElementById('postCategory').value;
+            const title = document.getElementById('postTitle').value;
+            const content = document.getElementById('postContent').value;
+            const imageInput = document.getElementById('postImages');
+
+            if (!title.trim() || !content.trim()) {
+                alert("제목과 내용을 모두 입력해 주세요.");
+                return;
+            }
+
+            const files = Array.from(imageInput.files);
+            const imagePromises = files.map(file => {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            Promise.all(imagePromises).then(imagesBase64 => {
+                const newPost = {
+                    id: Date.now(),
+                    category: category,
+                    title: title,
+                    content: content,
+                    images: imagesBase64,
+                    date: new Date().toLocaleDateString('ko-KR')
+                };
+
+                posts.unshift(newPost);
+                localStorage.setItem('blog_posts', JSON.stringify(posts));
+
+                // 폼 초기화
+                document.getElementById('postTitle').value = '';
+                document.getElementById('postContent').value = '';
+                document.getElementById('postImages').value = '';
+                document.getElementById('charCount').innerText = '0';
+
+                alert('포스팅이 성공적으로 등록되었습니다!');
+                renderPosts();
+            });
+        }
+
+        // 글 목록 출력 기능
+        function renderPosts() {
+            const container = document.getElementById('postsList');
+            container.innerHTML = '';
+
+            const filteredPosts = currentFilter === '전체' 
+                ? posts 
+                : posts.filter(p => p.category === currentFilter);
+
+            if (filteredPosts.length === 0) {
+                container.innerHTML = `<div class="post"><p style="text-align:center; color:#94a3b8;">등록된 글이 없습니다.</p></div>`;
+                return;
+            }
+
+            filteredPosts.forEach(post => {
+                let imgHtml = '';
+                if (post.images && post.images.length > 0) {
+                    imgHtml = `<div class="image-gallery">` + 
+                        post.images.map(img => `<img src="${img}" alt="첨부사진">`).join('') + 
+                        `</div>`;
+                }
+
+                const postHtml = `
+                    <div class="post">
+                        <div class="post-header">
+                            <h2>${escapeHtml(post.title)}</h2>
+                            <span class="post-badge">${post.category}</span>
+                        </div>
+                        <div class="date">${post.date}</div>
+                        <div class="post-content">${escapeHtml(post.content)}</div>
+                        ${imgHtml}
+                    </div>
+                `;
+                container.innerHTML += postHtml;
+            });
+        }
+
+        // 카테고리 필터링
+        function filterCategory(cat) {
+            currentFilter = cat;
+            renderPosts();
+        }
+
+        // 특수문자 이스케이프
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        // 로그인 / 회원가입
+        function signUp() {
+            const id = document.getElementById('username').value;
+            const pw = document.getElementById('password').value;
+            if(!id || !pw) return alert('아이디와 비밀번호를 입력해 주세요.');
+            if(localStorage.getItem('user_' + id)) return alert('이미 존재하는 아이디입니다.');
+            localStorage.setItem('user_' + id, pw);
+            alert('회원가입 성공!');
+        }
+
         function login() {
             const id = document.getElementById('username').value;
             const pw = document.getElementById('password').value;
-
-            const savedPw = localStorage.getItem('user_' + id);
-
-            if(savedPw && savedPw === pw) {
+            if(localStorage.getItem('user_' + id) === pw) {
                 alert(id + '님 환영합니다!');
-                document.getElementById('authBox').innerHTML = 
-                    `<span class="user-info">👤 ${id}님</span> <button onclick="location.reload()">로그아웃</button>`;
+                document.getElementById('authBox').innerHTML = `<span style="color:#1d4ed8; font-weight:bold;">👤 ${id}님</span>`;
             } else {
-                alert('아이디 또는 비밀번호가 일치하지 않습니다.');
+                alert('로그인 정보가 올바르지 않습니다.');
             }
         }
     </script>
