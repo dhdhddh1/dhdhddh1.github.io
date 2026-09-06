@@ -697,7 +697,7 @@
         function execCmd(cmd, val = null) { document.execCommand(cmd, false, val); }
         function triggerImageUpload() { document.getElementById('inlineImageInput').click(); }
 
-        /* 초압축 이미지 리사이징 (너비 400px 제한, 0.3 화질) -> Firestore 용량 초과 완벽 차단 */
+        /* 초압축 이미지 리사이징 (너비 400px 제한, 0.3 화질) -> Firestore 용량 초과 방지 */
         function insertCompressedImages(input) {
             const files = Array.from(input.files);
             files.forEach(file => {
