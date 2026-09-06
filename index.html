@@ -47,9 +47,8 @@
             font-weight: bold;
         }
         .auth-box button.btn-signup { background-color: #60a5fa; }
-        .auth-box button.btn-admin { background-color: #0284c7; margin-left: 10px; }
 
-        /* 전체 레이아웃 (좌측 밀착 및 넓은 메인) */
+        /* 전체 레이아웃 */
         .container {
             display: flex;
             max-width: 1400px;
@@ -60,7 +59,7 @@
 
         /* 좌측 사이드바 */
         aside {
-            width: 200px;
+            width: 210px;
             background: #ffffff;
             padding: 15px;
             border-radius: 10px;
@@ -89,6 +88,13 @@
             transition: color 0.2s;
         }
         .sub-category a:hover { color: #1d4ed8; font-weight: bold; }
+
+        .admin-category-box {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 2px dashed #fca5a5;
+        }
+        .admin-category-box .category-title { color: #dc2626; }
 
         /* 메인 콘텐츠 영역 */
         main { flex: 1; min-width: 0; }
@@ -177,18 +183,18 @@
             margin-bottom: 20px;
         }
 
-        /* 상단 지도 스타일 */
-        .map-container-box {
+        /* 미디어 컴포넌트 */
+        .media-embed-box {
             background: #f8fafc;
             border: 1px solid #cbd5e1;
             border-radius: 8px;
             padding: 15px;
             margin-bottom: 20px;
         }
-        .map-container-box h4 { margin: 0 0 10px 0; color: #0369a1; font-size: 15px; }
-        .map-iframe {
+        .media-embed-box h4 { margin: 0 0 10px 0; color: #0369a1; font-size: 15px; }
+        .media-iframe {
             width: 100%;
-            height: 320px;
+            height: 380px;
             border: 0;
             border-radius: 6px;
         }
@@ -198,13 +204,6 @@
             line-height: 1.7;
             color: #334155;
             word-break: break-all;
-        }
-        .detail-body img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin: 10px 0;
-            resize: both;
         }
 
         .detail-actions {
@@ -225,6 +224,83 @@
         .btn-back { background-color: #94a3b8; color: white; }
         .btn-edit { background-color: #0ea5e9; color: white; margin-right: 6px; }
         .btn-delete { background-color: #ef4444; color: white; }
+
+        /* 댓글 영역 */
+        .comments-section {
+            margin-top: 35px;
+            border-top: 2px solid #e0f2fe;
+            padding-top: 20px;
+        }
+        .comments-section h3 { font-size: 16px; color: #1e3a8a; margin-bottom: 15px; }
+        
+        .comment-write-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .comment-write-box textarea {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #bfdbfe;
+            border-radius: 6px;
+            font-size: 13px;
+            resize: vertical;
+            height: 60px;
+            outline: none;
+        }
+        .comment-write-box button {
+            width: 80px;
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .comment-item {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 13px;
+        }
+        .comment-item.reply {
+            margin-left: 30px;
+            background-color: #f8fafc;
+            border-left: 3px solid #bfdbfe;
+            border-radius: 0 6px 6px 0;
+        }
+        .comment-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #64748b;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        .comment-text { color: #334155; line-height: 1.5; word-break: break-all; }
+        .comment-actions { margin-top: 5px; font-size: 12px; }
+        .comment-actions a { color: #2563eb; cursor: pointer; margin-right: 10px; text-decoration: none; }
+
+        .reply-box {
+            margin-top: 8px;
+            display: flex;
+            gap: 8px;
+        }
+        .reply-box input {
+            flex: 1;
+            padding: 6px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .reply-box button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
 
         /* Floating + 버튼 */
         .fab-btn {
@@ -289,8 +365,8 @@
             outline: none;
         }
 
-        /* 지도 설정 박스 */
-        .travel-map-option {
+        /* 조건부 옵션 박스 */
+        .extra-option-box {
             background: #f0f9ff;
             border: 1px dashed #0284c7;
             padding: 12px;
@@ -298,7 +374,6 @@
             margin-bottom: 12px;
             display: none;
         }
-        .travel-map-option .row { display: flex; gap: 10px; margin-top: 6px; }
 
         /* 에디터 툴바 & 본문 */
         .editor-toolbar {
@@ -347,10 +422,6 @@
             margin-top: 15px;
         }
         .btn-submit-post:hover { background-color: #1d4ed8; }
-
-        .log-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        .log-table th, .log-table td { border: 1px solid #e2e8f0; padding: 8px; text-align: left; }
-        .log-table th { background: #f1f5f9; }
     </style>
 </head>
 <body>
@@ -411,7 +482,15 @@
                     <li><a onclick="showBoard('일상')">ㆍ 일상</a></li>
                     <li><a onclick="showBoard('게임')">ㆍ 게임</a></li>
                     <li><a onclick="showBoard('독서')">ㆍ 독서</a></li>
+                    <li><a onclick="showBoard('주식')">ㆍ 주식</a></li>
                     <li><a onclick="showBoard('이것좀 추가해라')">ㆍ 이것좀 추가해라</a></li>
+                </ul>
+            </div>
+
+            <div id="adminCategoryMenu" class="admin-category-box" style="display:none;">
+                <span class="category-title">⚙️ 관리자 전용</span>
+                <ul class="sub-category">
+                    <li><a onclick="showBoard('삭제된글관리')">ㆍ 🗑️ 삭제된 글 관리</a></li>
                 </ul>
             </div>
         </aside>
@@ -430,7 +509,7 @@
             </div>
             <div class="form-group">
                 <label>카테고리</label>
-                <select id="postCategory" onchange="toggleMapOption(this.value)">
+                <select id="postCategory" onchange="handleCategoryChange(this.value)">
                     <option value="음반 / 앨범">음악 - 음반 / 앨범</option>
                     <option value="악기 리뷰">음악 - 악기 리뷰</option>
                     <option value="연주 / 연습">음악 - 연주 / 연습</option>
@@ -449,20 +528,21 @@
                     <option value="일상">기타 - 일상</option>
                     <option value="게임">기타 - 게임</option>
                     <option value="독서">기타 - 독서</option>
+                    <option value="주식">기타 - 주식</option>
                     <option value="이것좀 추가해라">기타 - 이것좀 추가해라</option>
                 </select>
             </div>
 
-            <!-- 여행 카테고리 전용 지도 옵션 -->
-            <div class="travel-map-option" id="travelMapOption">
-                <label>🗺️ 여행 위치 선택 (네이버 지도 / 구글 맵)</label>
-                <div class="row">
-                    <select id="mapType" style="width: 140px;">
-                        <option value="naver">네이버 지도</option>
-                        <option value="google">구글 지도</option>
-                    </select>
-                    <input type="text" id="mapQuery" placeholder="장소명 또는 키워드 입력 (예: 도쿄 타워, 강남역 맛집)">
-                </div>
+            <!-- 여행 전용: 구글맵 입력 박스 -->
+            <div class="extra-option-box" id="mapOptionBox">
+                <label>🗺️ 여행 구글맵 위치 입력</label>
+                <input type="text" id="mapQuery" placeholder="장소명 또는 키워드 입력 (예: 도쿄 타워, 강남역 맛집)" style="margin-top:6px;">
+            </div>
+
+            <!-- 음악 및 애니 OST 전용: 유튜브 링크 입력 박스 -->
+            <div class="extra-option-box" id="youtubeOptionBox">
+                <label>▶️ 유튜브 영상 링크 (URL)</label>
+                <input type="text" id="youtubeUrl" placeholder="예: https://www.youtube.com/watch?v=dQw4w9WgXcQ 또는 공유 링크" style="margin-top:6px;">
             </div>
 
             <div class="form-group">
@@ -470,13 +550,12 @@
                 <input type="text" id="postTitle" placeholder="제목을 입력하세요">
             </div>
             <div class="form-group">
-                <label>본문 내용 & 문서 편집 도구</label>
+                <label>본문 내용 & 에디터</label>
                 <div class="editor-toolbar">
                     <select onchange="execCmd('fontName', this.value)">
                         <option value="Noto Sans KR">Noto Sans</option>
                         <option value="Gungsuh">궁서체</option>
                         <option value="Comic Sans MS">Comic Sans</option>
-                        <option value="Arial">Arial</option>
                     </select>
                     <select onchange="execCmd('fontSize', this.value)">
                         <option value="2">소 (10pt)</option>
@@ -506,31 +585,33 @@
     <div class="modal-overlay" id="allMapModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="allMapTitle">🗺️ 여행지 지도 한눈에 보기</h3>
+                <h3>🗺️ 여행지 지도 한눈에 보기</h3>
                 <button class="close-btn" onclick="closeAllMapModal()">✖</button>
             </div>
             <div id="allMapBody"></div>
         </div>
     </div>
 
-    <!-- 관리자 내역 모달 -->
-    <div class="modal-overlay" id="adminLogModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>📋 수정 및 삭제 기록 (관리자 전용)</h3>
-                <button class="close-btn" onclick="closeAdminLogModal()">✖</button>
-            </div>
-            <div id="adminLogList"></div>
-        </div>
-    </div>
-
     <script>
+        // 슈퍼 관리자 설정
+        const ADMIN_ID = 'dhdhddh1';
+
+        // 데이터 초기화 (요청에 따라 기존 글 삭제)
+        if (!localStorage.getItem('v2_initialized')) {
+            localStorage.setItem('blog_posts', JSON.stringify([]));
+            localStorage.setItem('deleted_posts', JSON.stringify([]));
+            localStorage.setItem('v2_initialized', 'true');
+        }
+
         let posts = JSON.parse(localStorage.getItem('blog_posts') || '[]');
-        let adminLogs = JSON.parse(localStorage.getItem('admin_logs') || '[]');
+        let deletedPosts = JSON.parse(localStorage.getItem('deleted_posts') || '[]');
         let currentUser = localStorage.getItem('logged_in_user') || null;
         let editingPostId = null;
         let currentCategoryFilter = '전체';
+
         const travelCategories = ['국내', '일본', '맛집/카페', '성지순례', '쇼핑'];
+        const musicCategories = ['음반 / 앨범', '악기 리뷰', '연주 / 연습', '기타 등등'];
+        const youtubeCategories = [...musicCategories, 'OST'];
 
         window.onload = function() {
             checkLoginStatus();
@@ -539,12 +620,16 @@
 
         function checkLoginStatus() {
             if (currentUser) {
-                let adminBtnHtml = currentUser === 'admin' ? `<button class="btn-admin" onclick="openAdminLogModal()">📋 수정/삭제 내역</button>` : '';
+                const isAdmin = currentUser === ADMIN_ID;
                 document.getElementById('authBox').innerHTML = `
-                    <span style="color:#1d4ed8; font-weight:bold; font-size:13px;">👤 ${currentUser}님</span>
-                    ${adminBtnHtml}
+                    <span style="color:#1d4ed8; font-weight:bold; font-size:13px;">👤 ${currentUser}${isAdmin ? ' (관리자)' : ''}님</span>
                     <button onclick="logout()">로그아웃</button>
                 `;
+                if (isAdmin) {
+                    document.getElementById('adminCategoryMenu').style.display = 'block';
+                }
+            } else {
+                document.getElementById('adminCategoryMenu').style.display = 'none';
             }
         }
 
@@ -552,9 +637,12 @@
             const id = document.getElementById('username').value.trim();
             const pw = document.getElementById('password').value.trim();
             if (!id || !pw) return alert('아이디와 비밀번호를 입력해 주세요.');
-            
+
             const savedPw = localStorage.getItem('user_' + id);
-            if (savedPw === pw || (id === 'admin' && pw === 'admin')) {
+            if (savedPw === pw || (id === ADMIN_ID && (savedPw === pw || !savedPw))) {
+                if (id === ADMIN_ID && !savedPw) {
+                    localStorage.setItem('user_' + ADMIN_ID, pw);
+                }
                 currentUser = id;
                 localStorage.setItem('logged_in_user', currentUser);
                 alert(id + '님 환영합니다!');
@@ -571,7 +659,7 @@
             if(!id || !pw) return alert('아이디와 비밀번호를 입력해 주세요.');
             if(localStorage.getItem('user_' + id)) return alert('이미 존재하는 아이디입니다.');
             localStorage.setItem('user_' + id, pw);
-            alert('회원가입 성공!');
+            alert('회원가입이 완료되었습니다!');
         }
 
         function logout() {
@@ -612,18 +700,24 @@
                 if (img) {
                     img.style.width = percent + '%';
                 } else {
-                    alert('크기를 조정할 이미지를 먼저 클릭해 주세요.');
+                    alert('크기를 조정할 이미지를 클릭해 주세요.');
                 }
             }
         }
 
-        function toggleMapOption(category) {
-            const mapOpt = document.getElementById('travelMapOption');
-            if (travelCategories.includes(category)) {
-                mapOpt.style.display = 'block';
-            } else {
-                mapOpt.style.display = 'none';
-            }
+        function handleCategoryChange(category) {
+            const mapBox = document.getElementById('mapOptionBox');
+            const ytBox = document.getElementById('youtubeOptionBox');
+
+            mapBox.style.display = travelCategories.includes(category) ? 'block' : 'none';
+            ytBox.style.display = youtubeCategories.includes(category) ? 'block' : 'none';
+        }
+
+        function extractYoutubeEmbed(url) {
+            if (!url) return null;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
         }
 
         function openWriteModal(postId = null) {
@@ -631,24 +725,23 @@
 
             editingPostId = postId;
             const modal = document.getElementById('writeModal');
-            
+
             if (postId) {
                 const post = posts.find(p => p.id === postId);
                 document.getElementById('modalTitle').innerText = "✏️ 게시글 수정하기";
                 document.getElementById('postCategory').value = post.category;
                 document.getElementById('postTitle').value = post.title;
                 document.getElementById('editorBody').innerHTML = post.content;
-                toggleMapOption(post.category);
-                if (post.mapData) {
-                    document.getElementById('mapType').value = post.mapData.type;
-                    document.getElementById('mapQuery').value = post.mapData.query;
-                }
+                document.getElementById('mapQuery').value = post.mapQuery || '';
+                document.getElementById('youtubeUrl').value = post.youtubeUrl || '';
+                handleCategoryChange(post.category);
             } else {
                 document.getElementById('modalTitle').innerText = "✍️ 새 포스팅 작성하기";
                 document.getElementById('postTitle').value = '';
                 document.getElementById('editorBody').innerHTML = '';
                 document.getElementById('mapQuery').value = '';
-                toggleMapOption(document.getElementById('postCategory').value);
+                document.getElementById('youtubeUrl').value = '';
+                handleCategoryChange(document.getElementById('postCategory').value);
             }
             modal.style.display = 'flex';
         }
@@ -661,29 +754,29 @@
             const category = document.getElementById('postCategory').value;
             const title = document.getElementById('postTitle').value.trim();
             const content = document.getElementById('editorBody').innerHTML.trim();
-            const mapType = document.getElementById('mapType').value;
             const mapQuery = document.getElementById('mapQuery').value.trim();
+            const youtubeUrl = document.getElementById('youtubeUrl').value.trim();
 
             if (!title || !content) return alert("제목과 본문을 입력하세요.");
 
-            let mapData = null;
-            if (travelCategories.includes(category) && mapQuery) {
-                mapData = { type: mapType, query: mapQuery };
-            }
-
             if (editingPostId) {
-                const postIndex = posts.findIndex(p => p.id === editingPostId);
-                posts[postIndex] = {
-                    ...posts[postIndex],
-                    category, title, content, mapData
+                const idx = posts.findIndex(p => p.id === editingPostId);
+                posts[idx] = {
+                    ...posts[idx],
+                    category, title, content,
+                    mapQuery: travelCategories.includes(category) ? mapQuery : null,
+                    youtubeUrl: youtubeCategories.includes(category) ? youtubeUrl : null
                 };
-                addAdminLog('수정', title, currentUser);
             } else {
                 const newPost = {
-                    id: Date.now(), category, title, content, mapData,
+                    id: Date.now(),
+                    category, title, content,
+                    mapQuery: travelCategories.includes(category) ? mapQuery : null,
+                    youtubeUrl: youtubeCategories.includes(category) ? youtubeUrl : null,
                     author: currentUser,
                     date: new Date().toLocaleDateString('ko-KR'),
-                    views: 0
+                    views: 0,
+                    comments: []
                 };
                 posts.unshift(newPost);
             }
@@ -696,24 +789,40 @@
         function showBoard(category) {
             currentCategoryFilter = category;
             const main = document.getElementById('mainContent');
-            const isTravel = travelCategories.includes(category);
 
+            // dhdhddh1 전용 삭제 관리 페이지
+            if (category === '삭제된글관리') {
+                if (currentUser !== ADMIN_ID) {
+                    alert('접근 권한이 없습니다.');
+                    return showBoard('전체');
+                }
+                renderDeletedPostsView(main);
+                return;
+            }
+
+            const isTravel = travelCategories.includes(category);
             const filteredPosts = category === '전체' 
                 ? posts 
                 : posts.filter(p => p.category === category);
 
-            let mapOverviewBtn = isTravel ? `<button class="map-overview-btn" onclick="openAllMapModal('${category}')">🗺️ ${category} 여행지 지도 한눈에 보기</button>` : '';
+            let mapOverviewBtn = isTravel ? `<button class="map-overview-btn" onclick="openAllMapModal('${category}')">🗺️ ${category} 지도 한눈에 보기</button>` : '';
 
             let rowsHtml = '';
             if (filteredPosts.length === 0) {
                 rowsHtml = `<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:30px;">등록된 글이 없습니다.</td></tr>`;
             } else {
                 filteredPosts.forEach(post => {
-                    let mapTag = post.mapData ? ` 📍` : '';
+                    let iconTag = '';
+                    if (post.mapQuery) iconTag += ' 📍';
+                    if (post.youtubeUrl) iconTag += ' ▶️';
+
+                    const commentCount = post.comments ? post.comments.length : 0;
+                    const commentBadge = commentCount > 0 ? ` <span style="color:#2563eb; font-size:12px;">[${commentCount}]</span>` : '';
+
                     rowsHtml += `
                         <tr>
                             <td><span class="badge">${post.category}</span></td>
-                            <td class="title-cell" onclick="viewPost(${post.id})">${escapeHtml(post.title)}${mapTag}</td>
+                            <td class="title-cell" onclick="viewPost(${post.id})">${escapeHtml(post.title)}${iconTag}${commentBadge}</td>
                             <td>${post.author || '익명'}</td>
                             <td>${post.date}</td>
                             <td>${post.views || 0}</td>
@@ -752,34 +861,42 @@
             post.views = (post.views || 0) + 1;
             localStorage.setItem('blog_posts', JSON.stringify(posts));
 
+            // 구글 지도 삽입
             let mapHtml = '';
-            if (post.mapData && post.mapData.query) {
-                const encodedQuery = encodeURIComponent(post.mapData.query);
-                let iframeSrc = '';
-                if (post.mapData.type === 'google') {
-                    iframeSrc = `https://maps.google.com/maps?q=${encodedQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
-                } else {
-                    iframeSrc = `https://m.map.naver.com/search2/search.naver?query=${encodedQuery}`;
-                }
-
+            if (post.mapQuery) {
+                const encodedQuery = encodeURIComponent(post.mapQuery);
                 mapHtml = `
-                    <div class="map-container-box">
-                        <h4>📍 위치 정보: ${escapeHtml(post.mapData.query)} (${post.mapData.type === 'google' ? '구글 지도' : '네이버 지도'})</h4>
-                        ${post.mapData.type === 'google' 
-                            ? `<iframe class="map-iframe" src="${iframeSrc}"></iframe>`
-                            : `<iframe class="map-iframe" src="${iframeSrc}"></iframe>`
-                        }
+                    <div class="media-embed-box">
+                        <h4>📍 Google Maps 위치: ${escapeHtml(post.mapQuery)}</h4>
+                        <iframe class="media-iframe" src="https://maps.google.com/maps?q=${encodedQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed"></iframe>
                     </div>
                 `;
             }
 
-            const isAuthor = currentUser && (currentUser === post.author || currentUser === 'admin');
-            let actionBtns = isAuthor ? `
+            // 유튜브 영상 삽입
+            let youtubeHtml = '';
+            if (post.youtubeUrl) {
+                const videoId = extractYoutubeEmbed(post.youtubeUrl);
+                if (videoId) {
+                    youtubeHtml = `
+                        <div class="media-embed-box">
+                            <h4>▶️ 연동 영상</h4>
+                            <iframe class="media-iframe" src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>
+                        </div>
+                    `;
+                }
+            }
+
+            const canManage = currentUser && (currentUser === post.author || currentUser === ADMIN_ID);
+            let actionBtns = canManage ? `
                 <div>
                     <button class="btn-opt btn-edit" onclick="openWriteModal(${post.id})">수정</button>
                     <button class="btn-opt btn-delete" onclick="deletePost(${post.id})">삭제</button>
                 </div>
             ` : '';
+
+            // 댓글 HTML 생성
+            const commentsHtml = renderCommentsHtml(post);
 
             document.getElementById('mainContent').innerHTML = `
                 <div class="post-detail">
@@ -791,33 +908,216 @@
                         <span>조회수: ${post.views}</span>
                     </div>
                     ${mapHtml}
+                    ${youtubeHtml}
                     <div class="detail-body">${post.content}</div>
                     <div class="detail-actions">
                         <button class="btn-opt btn-back" onclick="showBoard('${currentCategoryFilter}')">← 목록으로</button>
                         ${actionBtns}
                     </div>
+
+                    <!-- 댓글 영역 -->
+                    <div class="comments-section">
+                        <h3>💬 댓글 목록</h3>
+                        <div class="comment-write-box">
+                            <textarea id="commentInput" placeholder="${currentUser ? '댓글을 입력해 보세요...' : '로그인 후 댓글 작성이 가능합니다.'}" ${!currentUser ? 'disabled' : ''}></textarea>
+                            <button onclick="addComment(${post.id})" ${!currentUser ? 'disabled' : ''}>등록</button>
+                        </div>
+                        <div id="commentsList">${commentsHtml}</div>
+                    </div>
                 </div>
             `;
         }
 
+        // 댓글 & 대댓글 트리 생성
+        function renderCommentsHtml(post) {
+            if (!post.comments || post.comments.length === 0) {
+                return `<p style="color:#94a3b8; font-size:13px; text-align:center; padding:15px;">첫 댓글을 남겨보세요!</p>`;
+            }
+
+            let html = '';
+            const topComments = post.comments.filter(c => !c.parentId);
+
+            topComments.forEach(c => {
+                const canDel = currentUser && (currentUser === c.author || currentUser === ADMIN_ID);
+                html += `
+                    <div class="comment-item">
+                        <div class="comment-meta">
+                            <b>${c.author}</b>
+                            <span>${c.date}</span>
+                        </div>
+                        <div class="comment-text">${escapeHtml(c.text)}</div>
+                        <div class="comment-actions">
+                            ${currentUser ? `<a onclick="toggleReplyBox(${c.id})">답글</a>` : ''}
+                            ${canDel ? `<a onclick="deleteComment(${post.id}, ${c.id})" style="color:#ef4444;">삭제</a>` : ''}
+                        </div>
+                        <div id="replyBox_${c.id}" class="reply-box" style="display:none;">
+                            <input type="text" id="replyInput_${c.id}" placeholder="답글을 입력하세요...">
+                            <button onclick="addReply(${post.id}, ${c.id})">등록</button>
+                        </div>
+                    </div>
+                `;
+
+                // 대댓글
+                const replies = post.comments.filter(r => r.parentId === c.id);
+                replies.forEach(r => {
+                    const canDelReply = currentUser && (currentUser === r.author || currentUser === ADMIN_ID);
+                    html += `
+                        <div class="comment-item reply">
+                            <div class="comment-meta">
+                                <b>↳ ${r.author}</b>
+                                <span>${r.date}</span>
+                            </div>
+                            <div class="comment-text">${escapeHtml(r.text)}</div>
+                            <div class="comment-actions">
+                                ${canDelReply ? `<a onclick="deleteComment(${post.id}, ${r.id})" style="color:#ef4444;">삭제</a>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+
+            return html;
+        }
+
+        function addComment(postId) {
+            const input = document.getElementById('commentInput');
+            const text = input.value.trim();
+            if (!text) return alert("댓글 내용을 입력해 주세요.");
+
+            const post = posts.find(p => p.id === postId);
+            if (!post.comments) post.comments = [];
+
+            post.comments.push({
+                id: Date.now(),
+                author: currentUser,
+                text,
+                date: new Date().toLocaleString('ko-KR'),
+                parentId: null
+            });
+
+            localStorage.setItem('blog_posts', JSON.stringify(posts));
+            viewPost(postId);
+        }
+
+        function toggleReplyBox(commentId) {
+            const box = document.getElementById(`replyBox_${commentId}`);
+            box.style.display = box.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function addReply(postId, parentCommentId) {
+            const input = document.getElementById(`replyInput_${parentCommentId}`);
+            const text = input.value.trim();
+            if (!text) return alert("답글 내용을 입력해 주세요.");
+
+            const post = posts.find(p => p.id === postId);
+            post.comments.push({
+                id: Date.now(),
+                author: currentUser,
+                text,
+                date: new Date().toLocaleString('ko-KR'),
+                parentId: parentCommentId
+            });
+
+            localStorage.setItem('blog_posts', JSON.stringify(posts));
+            viewPost(postId);
+        }
+
+        function deleteComment(postId, commentId) {
+            if (!confirm("댓글을 삭제하시겠습니까?")) return;
+            const post = posts.find(p => p.id === postId);
+            post.comments = post.comments.filter(c => c.id !== commentId && c.parentId !== commentId);
+            localStorage.setItem('blog_posts', JSON.stringify(posts));
+            viewPost(postId);
+        }
+
+        function deletePost(postId) {
+            if (!confirm("정말로 삭제하시겠습니까?")) return;
+            const targetIndex = posts.findIndex(p => p.id === postId);
+            if (targetIndex !== -1) {
+                const deletedItem = {
+                    ...posts[targetIndex],
+                    deletedBy: currentUser,
+                    deletedAt: new Date().toLocaleString('ko-KR')
+                };
+                deletedPosts.unshift(deletedItem);
+                posts.splice(targetIndex, 1);
+
+                localStorage.setItem('blog_posts', JSON.stringify(posts));
+                localStorage.setItem('deleted_posts', JSON.stringify(deletedPosts));
+
+                alert('삭제되어 관리자 삭제 보관함으로 이동되었습니다.');
+                showBoard(currentCategoryFilter);
+            }
+        }
+
+        function renderDeletedPostsView(container) {
+            let rows = '';
+            if (deletedPosts.length === 0) {
+                rows = `<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:30px;">삭제된 글이 없습니다.</td></tr>`;
+            } else {
+                deletedPosts.forEach((post, idx) => {
+                    rows += `
+                        <tr>
+                            <td><span class="badge">${post.category}</span></td>
+                            <td><b>${escapeHtml(post.title)}</b> (원작자: ${post.author})</td>
+                            <td>${post.deletedBy}</td>
+                            <td>${post.deletedAt}</td>
+                            <td>
+                                <button class="btn-opt btn-edit" onclick="restorePost(${idx})">복구</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            container.innerHTML = `
+                <div class="board-card">
+                    <div class="board-header">
+                        <h2 style="color:#dc2626;">🗑️ 삭제된 글 관리 (dhdhddh1 전용)</h2>
+                        <span style="font-size:13px; color:#64748b;">보관함 총 ${deletedPosts.length}개</span>
+                    </div>
+                    <table class="board-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 15%;">카테고리</th>
+                                <th style="width: 40%;">제목 (작성자)</th>
+                                <th style="width: 15%;">삭제한 사람</th>
+                                <th style="width: 20%;">삭제 일시</th>
+                                <th style="width: 10%;">관리</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function restorePost(deletedIdx) {
+            const restored = deletedPosts.splice(deletedIdx, 1)[0];
+            delete restored.deletedBy;
+            delete restored.deletedAt;
+            posts.unshift(restored);
+
+            localStorage.setItem('blog_posts', JSON.stringify(posts));
+            localStorage.setItem('deleted_posts', JSON.stringify(deletedPosts));
+            alert('글이 성공적으로 복구되었습니다.');
+            showBoard('삭제된글관리');
+        }
+
         function openAllMapModal(category) {
-            const filteredPosts = posts.filter(p => p.category === category && p.mapData && p.mapData.query);
+            const filteredPosts = posts.filter(p => p.category === category && p.mapQuery);
             const container = document.getElementById('allMapBody');
             
             if (filteredPosts.length === 0) {
-                container.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">등록된 지도가 있는 여행글이 없습니다.</p>`;
+                container.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">등록된 구글 지도가 있는 여행글이 없습니다.</p>`;
             } else {
                 let html = '<div style="display:flex; flex-direction:column; gap:20px;">';
                 filteredPosts.forEach(post => {
-                    const encodedQuery = encodeURIComponent(post.mapData.query);
-                    const iframeSrc = post.mapData.type === 'google'
-                        ? `https://maps.google.com/maps?q=${encodedQuery}&t=&z=14&ie=UTF8&iwloc=&output=embed`
-                        : `https://m.map.naver.com/search2/search.naver?query=${encodedQuery}`;
-
+                    const encodedQuery = encodeURIComponent(post.mapQuery);
                     html += `
                         <div style="border:1px solid #bae6fd; padding:15px; border-radius:8px; background:#f0f9ff;">
-                            <h4 style="margin:0 0 8px 0; color:#0369a1; cursor:pointer;" onclick="closeAllMapModal(); viewPost(${post.id});">📌 ${escapeHtml(post.title)} (${post.mapData.query})</h4>
-                            <iframe class="map-iframe" src="${iframeSrc}" style="height:250px;"></iframe>
+                            <h4 style="margin:0 0 8px 0; color:#0369a1; cursor:pointer;" onclick="closeAllMapModal(); viewPost(${post.id});">📌 ${escapeHtml(post.title)} (${post.mapQuery})</h4>
+                            <iframe class="media-iframe" src="https://maps.google.com/maps?q=${encodedQuery}&t=&z=14&ie=UTF8&iwloc=&output=embed" style="height:250px;"></iframe>
                         </div>
                     `;
                 });
@@ -829,41 +1129,6 @@
 
         function closeAllMapModal() {
             document.getElementById('allMapModal').style.display = 'none';
-        }
-
-        function deletePost(postId) {
-            if (!confirm("정말로 삭제하시겠습니까?")) return;
-            const post = posts.find(p => p.id === postId);
-            if (post) {
-                addAdminLog('삭제', post.title, currentUser);
-                posts = posts.filter(p => p.id !== postId);
-                localStorage.setItem('blog_posts', JSON.stringify(posts));
-                showBoard(currentCategoryFilter);
-            }
-        }
-
-        function addAdminLog(action, title, user) {
-            adminLogs.unshift({ action, title, user, time: new Date().toLocaleString('ko-KR') });
-            localStorage.setItem('admin_logs', JSON.stringify(adminLogs));
-        }
-
-        function openAdminLogModal() {
-            const container = document.getElementById('adminLogList');
-            if (adminLogs.length === 0) {
-                container.innerHTML = `<p style="text-align:center; color:#888;">기록이 없습니다.</p>`;
-            } else {
-                let html = `<table class="log-table"><thead><tr><th>구분</th><th>글 제목</th><th>작업자</th><th>일시</th></tr></thead><tbody>`;
-                adminLogs.forEach(log => {
-                    html += `<tr><td style="color:${log.action === '삭제' ? '#ef4444':'#0ea5e9'}; font-weight:bold;">${log.action}</td><td>${escapeHtml(log.title)}</td><td>${log.user}</td><td>${log.time}</td></tr>`;
-                });
-                html += `</tbody></table>`;
-                container.innerHTML = html;
-            }
-            document.getElementById('adminLogModal').style.display = 'flex';
-        }
-
-        function closeAdminLogModal() {
-            document.getElementById('adminLogModal').style.display = 'none';
         }
 
         function escapeHtml(str) {
