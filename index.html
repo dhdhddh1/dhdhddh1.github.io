@@ -357,8 +357,8 @@
         <div class="auth-box" id="authBox">
             <input type="text" id="userPhone" placeholder="전화번호(-없이)">
             <input type="password" id="userPw" placeholder="비밀번호">
-            <button onclick="login()">로그인</button>
-            <button class="btn-signup" onclick="openSignUpModal()">회원가입</button>
+            <button type="button" onclick="login()">로그인</button>
+            <button type="button" class="btn-signup" onclick="openSignUpModal()">회원가입</button>
         </div>
     </header>
 
@@ -446,7 +446,7 @@
                 </div>
             </div>
             <p style="color:#ef4444; font-size:11px; margin-top:5px;">⚠️ 한번 등록된 전화번호는 비밀번호 변경 및 수정이 불가능합니다.</p>
-            <button class="btn-submit-post" onclick="processSignUp()">가입 완료하기</button>
+            <button type="button" class="btn-submit-post" onclick="processSignUp()">가입 완료하기</button>
         </div>
     </div>
 
@@ -510,7 +510,7 @@
                     <button type="button" onclick="execCmd('underline')"><u>U</u></button>
                     <button type="button" onclick="resizeSelectedImg(50)">🔍 사진 50%</button>
                     <button type="button" onclick="resizeSelectedImg(100)">🔍 사진 100%</button>
-                    <button type="button" onclick="triggerImageUpload()">📷 사진 삽입 (압축)</button>
+                    <button type="button" onclick="triggerImageUpload()">📷 사진 삽입 (초압축)</button>
                     <input type="file" id="inlineImageInput" accept="image/*" multiple style="display:none;" onchange="insertCompressedImages(this)">
                 </div>
                 <div class="editor-body" id="editorBody" contenteditable="true"></div>
@@ -572,6 +572,8 @@
                     posts.push({ id: doc.id, ...doc.data() });
                 });
                 showBoard(currentCategoryFilter);
+            }, err => {
+                console.error("Firestore 수신 오류:", err);
             });
         }
 
@@ -582,6 +584,8 @@
                     deletedPosts.push({ id: doc.id, ...doc.data() });
                 });
                 if (currentCategoryFilter === '삭제된글관리') showBoard('삭제된글관리');
+            }, err => {
+                console.error("삭제된 글 수신 오류:", err);
             });
         }
 
@@ -590,7 +594,7 @@
                 const isAdmin = currentUser.phone === ADMIN_PHONE;
                 document.getElementById('authBox').innerHTML = `
                     <span style="color:#1d4ed8; font-weight:bold; font-size:13px;">👤 ${currentUser.nick}${isAdmin ? ' (관리자)' : ''}님</span>
-                    <button onclick="logout()">로그아웃</button>
+                    <button type="button" onclick="logout()">로그아웃</button>
                 `;
                 if (isAdmin) document.getElementById('adminCategoryMenu').style.display = 'block';
             } else {
@@ -608,14 +612,18 @@
             const nick = document.getElementById('regNick').value.trim();
             if (!nick) return alert('닉네임을 입력해 주세요.');
 
-            const snapshot = await db.collection("users").where("nick", "==", nick).get();
-            if (!snapshot.empty || nick === '주인장' || nick === '관리자') {
-                alert('이미 존재하는 닉네임입니다.');
-                isNickChecked = false;
-            } else {
-                alert('사용 가능한 닉네임입니다!');
-                isNickChecked = true;
-                checkedNickValue = nick;
+            try {
+                const snapshot = await db.collection("users").where("nick", "==", nick).get();
+                if (!snapshot.empty || nick === '주인장' || nick === '관리자') {
+                    alert('이미 존재하는 닉네임입니다.');
+                    isNickChecked = false;
+                } else {
+                    alert('사용 가능한 닉네임입니다!');
+                    isNickChecked = true;
+                    checkedNickValue = nick;
+                }
+            } catch(e) {
+                alert("중복 확인 중 오류가 발생했습니다: " + e.message);
             }
         }
 
@@ -631,18 +639,22 @@
 
             if (!phone || !pw || !nick) return alert('모든 항목을 입력해 주세요.');
 
-            const userDoc = await db.collection("users").doc(phone).get();
-            if (userDoc.exists()) {
-                return alert('⚠️ 이미 가입된 전화번호입니다!\n보안 방침상 비밀번호 수정이 불가능합니다.');
-            }
+            try {
+                const userDoc = await db.collection("users").doc(phone).get();
+                if (userDoc.exists()) {
+                    return alert('⚠️ 이미 가입된 전화번호입니다!\n보안 방침상 비밀번호 수정이 불가능합니다.');
+                }
 
-            if (!isNickChecked || checkedNickValue !== nick) {
-                return alert('닉네임 중복 확인을 진행해 주세요.');
-            }
+                if (!isNickChecked || checkedNickValue !== nick) {
+                    return alert('닉네임 중복 확인을 진행해 주세요.');
+                }
 
-            await db.collection("users").doc(phone).set({ pw, nick });
-            alert('회원가입이 완료되었습니다! 로그인해 주세요.');
-            closeSignUpModal();
+                await db.collection("users").doc(phone).set({ pw, nick });
+                alert('회원가입이 완료되었습니다! 로그인해 주세요.');
+                closeSignUpModal();
+            } catch(e) {
+                alert("회원가입 실패: " + e.message);
+            }
         }
 
         async function login() {
@@ -651,24 +663,28 @@
 
             if (!phone || !pw) return alert('전화번호와 비밀번호를 입력하세요.');
 
-            const userDoc = await db.collection("users").doc(phone).get();
+            try {
+                const userDoc = await db.collection("users").doc(phone).get();
 
-            if (phone === ADMIN_PHONE) {
-                if (userDoc.exists() && userDoc.data().pw !== pw) return alert('비밀번호가 올바르지 않습니다.');
-                const nick = userDoc.exists() ? userDoc.data().nick : '주인장(관리자)';
-                currentUser = { phone: ADMIN_PHONE, nick: nick };
-                localStorage.setItem('current_user', JSON.stringify(currentUser));
-                checkLoginStatus();
-                return showBoard(currentCategoryFilter);
-            }
+                if (phone === ADMIN_PHONE) {
+                    if (userDoc.exists() && userDoc.data().pw !== pw) return alert('비밀번호가 올바르지 않습니다.');
+                    const nick = userDoc.exists() ? userDoc.data().nick : '주인장(관리자)';
+                    currentUser = { phone: ADMIN_PHONE, nick: nick };
+                    localStorage.setItem('current_user', JSON.stringify(currentUser));
+                    checkLoginStatus();
+                    return showBoard(currentCategoryFilter);
+                }
 
-            if (userDoc.exists() && userDoc.data().pw === pw) {
-                currentUser = { phone: phone, nick: userDoc.data().nick };
-                localStorage.setItem('current_user', JSON.stringify(currentUser));
-                checkLoginStatus();
-                showBoard(currentCategoryFilter);
-            } else {
-                alert('전화번호 또는 비밀번호가 올바르지 않습니다.');
+                if (userDoc.exists() && userDoc.data().pw === pw) {
+                    currentUser = { phone: phone, nick: userDoc.data().nick };
+                    localStorage.setItem('current_user', JSON.stringify(currentUser));
+                    checkLoginStatus();
+                    showBoard(currentCategoryFilter);
+                } else {
+                    alert('전화번호 또는 비밀번호가 올바르지 않습니다.');
+                }
+            } catch(e) {
+                alert("로그인 처리 실패: " + e.message);
             }
         }
 
@@ -681,7 +697,7 @@
         function execCmd(cmd, val = null) { document.execCommand(cmd, false, val); }
         function triggerImageUpload() { document.getElementById('inlineImageInput').click(); }
 
-        /* 사진 고압축 리사이징 (최대 600px, 0.5 화질) */
+        /* 초압축 이미지 리사이징 (너비 400px 제한, 0.3 화질) -> Firestore 용량 초과 완벽 차단 */
         function insertCompressedImages(input) {
             const files = Array.from(input.files);
             files.forEach(file => {
@@ -693,7 +709,7 @@
                         const canvas = document.createElement('canvas');
                         let width = img.width;
                         let height = img.height;
-                        const max_size = 600;
+                        const max_size = 400;
 
                         if (width > max_size) {
                             height = Math.round((height * max_size) / width);
@@ -705,7 +721,7 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
 
-                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.5);
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.3);
                         const imgHtml = `<img src="${compressedDataUrl}" style="max-width:100%; cursor:pointer;"><br>`;
                         document.getElementById('editorBody').focus();
                         document.execCommand('insertHTML', false, imgHtml);
@@ -768,7 +784,6 @@
 
         function closeWriteModal() { document.getElementById('writeModal').style.display = 'none'; }
 
-        /* 포스트 저장 및 튕김 방지 */
         async function savePost(e) {
             if (e) e.preventDefault();
 
@@ -808,7 +823,7 @@
                     viewPost(docRef.id);
                 }
             } catch (err) {
-                alert("저장 중 오류가 발생했습니다. 사진 용량을 줄여서 다시 시도해보세요.");
+                alert("저장 실패 (원인: " + err.message + ")");
             }
         }
 
@@ -824,7 +839,7 @@
 
             const isTravel = travelCategories.includes(category);
             const filteredPosts = category === '전체' ? posts : posts.filter(p => p.category === category);
-            let mapOverviewBtn = isTravel ? `<button class="map-overview-btn" onclick="openAllMapModal('${category}')">🗺️ ${category} 지도 모아보기</button>` : '';
+            let mapOverviewBtn = isTravel ? `<button type="button" class="map-overview-btn" onclick="openAllMapModal('${category}')">🗺️ ${category} 지도 모아보기</button>` : '';
 
             let rowsHtml = '';
             if (filteredPosts.length === 0) {
@@ -894,15 +909,15 @@
             const canManage = currentUser && (currentUser.phone === post.authorPhone || currentUser.phone === ADMIN_PHONE);
             let actionBtns = canManage ? `
                 <div>
-                    <button class="btn-opt btn-edit" onclick="openWriteModal('${post.id}')">수정</button>
-                    <button class="btn-opt btn-delete" onclick="deletePost('${post.id}')">삭제</button>
+                    <button type="button" class="btn-opt btn-edit" onclick="openWriteModal('${post.id}')">수정</button>
+                    <button type="button" class="btn-opt btn-delete" onclick="deletePost('${post.id}')">삭제</button>
                 </div>` : '';
 
             let processedContent = post.content.replace(/<img[^>]*src="([^"]*)"[^>]*>/gi, function(match, src) {
                 return `
                     <div class="img-wrapper">
                         ${match}
-                        <button class="img-download-btn" onclick="downloadImage('${src}')">💾 사진 저장</button>
+                        <button type="button" class="img-download-btn" onclick="downloadImage('${src}')">💾 사진 저장</button>
                     </div>
                 `;
             });
@@ -920,7 +935,7 @@
                     ${ytHtml}
                     <div class="detail-body">${processedContent}</div>
                     <div class="detail-actions">
-                        <button class="btn-opt btn-back" onclick="showBoard('${currentCategoryFilter}')">← 목록으로</button>
+                        <button type="button" class="btn-opt btn-back" onclick="showBoard('${currentCategoryFilter}')">← 목록으로</button>
                         ${actionBtns}
                     </div>
 
@@ -928,7 +943,7 @@
                         <h3>💬 댓글</h3>
                         <div class="comment-write-box">
                             <textarea id="commentInput" placeholder="${currentUser ? '댓글 입력...' : '로그인 후 작성 가능'}" ${!currentUser ? 'disabled' : ''}></textarea>
-                            <button onclick="addComment('${post.id}')" ${!currentUser ? 'disabled' : ''}>등록</button>
+                            <button type="button" onclick="addComment('${post.id}')" ${!currentUser ? 'disabled' : ''}>등록</button>
                         </div>
                         <div>${renderCommentsHtml(post)}</div>
                     </div>
@@ -962,7 +977,7 @@
                         </div>
                         <div id="replyBox_${c.id}" class="reply-box" style="display:none;">
                             <input type="text" id="replyInput_${c.id}" placeholder="답글 입력...">
-                            <button onclick="addReply('${post.id}', ${c.id})">등록</button>
+                            <button type="button" onclick="addReply('${post.id}', ${c.id})">등록</button>
                         </div>
                     </div>
                 `;
@@ -1064,7 +1079,7 @@
                             <td><b>${escapeHtml(post.title)}</b> (${post.authorNick})</td>
                             <td>${post.deletedBy}</td>
                             <td>${new Date(post.deletedAt).toLocaleString('ko-KR')}</td>
-                            <td><button class="btn-opt btn-edit" onclick="restorePost('${post.id}')">복구</button></td>
+                            <td><button type="button" class="btn-opt btn-edit" onclick="restorePost('${post.id}')">복구</button></td>
                         </tr>
                     `;
                 });
