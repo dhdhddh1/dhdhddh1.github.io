@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title권민석이 심심해서 만든 취미 홈페이지</title>
+    <title>파스텔 블루 아카이브 블로그</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -93,7 +93,7 @@
         /* 메인 콘텐츠 영역 */
         main { flex: 1; min-width: 0; }
 
-        /* 게시판 리스트 테이블 스타일 */
+        /* 게시판 리스트 카드 */
         .board-card {
             background: white;
             padding: 20px;
@@ -110,6 +110,22 @@
             padding-bottom: 10px;
         }
         .board-header h2 { margin: 0; color: #1e3a8a; font-size: 18px; }
+
+        .map-overview-btn {
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .map-overview-btn:hover { background-color: #0369a1; }
 
         .board-table {
             width: 100%;
@@ -142,7 +158,7 @@
             margin-right: 6px;
         }
 
-        /* 게시글 상세 보기 스타일 */
+        /* 게시글 상세 보기 */
         .post-detail {
             background: white;
             padding: 30px;
@@ -160,13 +176,37 @@
             padding-bottom: 12px;
             margin-bottom: 20px;
         }
+
+        /* 상단 지도 스타일 */
+        .map-container-box {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .map-container-box h4 { margin: 0 0 10px 0; color: #0369a1; font-size: 15px; }
+        .map-iframe {
+            width: 100%;
+            height: 320px;
+            border: 0;
+            border-radius: 6px;
+        }
+
         .detail-body {
             min-height: 200px;
             line-height: 1.7;
             color: #334155;
             word-break: break-all;
         }
-        .detail-body img { max-width: 100%; height: auto; border-radius: 8px; margin: 10px 0; }
+        .detail-body img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 10px 0;
+            resize: both;
+        }
+
         .detail-actions {
             margin-top: 25px;
             padding-top: 15px;
@@ -186,7 +226,7 @@
         .btn-edit { background-color: #0ea5e9; color: white; margin-right: 6px; }
         .btn-delete { background-color: #ef4444; color: white; }
 
-        /* 우측 하단 Floating + 버튼 */
+        /* Floating + 버튼 */
         .fab-btn {
             position: fixed;
             bottom: 30px;
@@ -207,7 +247,7 @@
         }
         .fab-btn:hover { transform: scale(1.08); background-color: #2563eb; }
 
-        /* 모달 (팝업창) 공통 */
+        /* 모달 레이아웃 */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -219,7 +259,7 @@
         }
         .modal-content {
             background: white;
-            width: 800px;
+            width: 850px;
             max-width: 90%;
             max-height: 90vh;
             border-radius: 12px;
@@ -238,7 +278,6 @@
         .modal-header h3 { margin: 0; color: #1e3a8a; }
         .close-btn { font-size: 20px; cursor: pointer; color: #64748b; border: none; background: none; }
 
-        /* 폼 요소 */
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 13px; color: #1e3a8a; }
         select, input[type="text"] {
@@ -250,7 +289,18 @@
             outline: none;
         }
 
-        /* WYSIWYG 에디터 툴바 & 본문 */
+        /* 지도 설정 박스 */
+        .travel-map-option {
+            background: #f0f9ff;
+            border: 1px dashed #0284c7;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            display: none;
+        }
+        .travel-map-option .row { display: flex; gap: 10px; margin-top: 6px; }
+
+        /* 에디터 툴바 & 본문 */
         .editor-toolbar {
             background: #f0f9ff;
             border: 1px solid #bfdbfe;
@@ -283,7 +333,6 @@
             outline: none;
             line-height: 1.6;
         }
-        .editor-body img { max-width: 100%; height: auto; border-radius: 6px; }
 
         .btn-submit-post {
             width: 100%;
@@ -299,7 +348,6 @@
         }
         .btn-submit-post:hover { background-color: #1d4ed8; }
 
-        /* 관리자 내역 테이블 */
         .log-table { width: 100%; border-collapse: collapse; font-size: 13px; }
         .log-table th, .log-table td { border: 1px solid #e2e8f0; padding: 8px; text-align: left; }
         .log-table th { background: #f1f5f9; }
@@ -307,7 +355,6 @@
 </head>
 <body>
 
-    <!-- 헤더 -->
     <header>
         <div class="logo-title">
             <h1 onclick="showBoard('전체')">🎵 파스텔 블루 아카이브</h1>
@@ -322,7 +369,6 @@
     </header>
 
     <div class="container">
-        <!-- 사이드바 -->
         <aside>
             <h3 onclick="showBoard('전체')">📂 전체 보기</h3>
             
@@ -342,7 +388,8 @@
                     <li><a onclick="showBoard('분기별 신작')">ㆍ 분기별 신작</a></li>
                     <li><a onclick="showBoard('명작 추천')">ㆍ 명작 추천</a></li>
                     <li><a onclick="showBoard('피규어/굿즈')">ㆍ 피규어/굿즈</a></li>
-                    <li><a onclick="showBoard('성우/ost')">ㆍ 성우/ost</a></li>
+                    <li><a onclick="showBoard('성우')">ㆍ 성우</a></li>
+                    <li><a onclick="showBoard('OST')">ㆍ OST</a></li>
                     <li><a onclick="showBoard('캐릭터')">ㆍ 캐릭터</a></li>
                 </ul>
             </div>
@@ -369,13 +416,9 @@
             </div>
         </aside>
 
-        <!-- 메인 영영 -->
-        <main id="mainContent">
-            <!-- 리스트 및 상세보기가 다이내믹하게 출력됨 -->
-        </main>
+        <main id="mainContent"></main>
     </div>
 
-    <!-- 우측 하단 Floating + 버튼 -->
     <div class="fab-btn" onclick="openWriteModal()">+</div>
 
     <!-- 포스팅 작성/수정 모달 -->
@@ -387,7 +430,7 @@
             </div>
             <div class="form-group">
                 <label>카테고리</label>
-                <select id="postCategory">
+                <select id="postCategory" onchange="toggleMapOption(this.value)">
                     <option value="음반 / 앨범">음악 - 음반 / 앨범</option>
                     <option value="악기 리뷰">음악 - 악기 리뷰</option>
                     <option value="연주 / 연습">음악 - 연주 / 연습</option>
@@ -395,7 +438,8 @@
                     <option value="분기별 신작">애니 - 분기별 신작</option>
                     <option value="명작 추천">애니 - 명작 추천</option>
                     <option value="피규어/굿즈">애니 - 피규어/굿즈</option>
-                    <option value="성우/ost">애니 - 성우/ost</option>
+                    <option value="성우">애니 - 성우</option>
+                    <option value="OST">애니 - OST</option>
                     <option value="캐릭터">애니 - 캐릭터</option>
                     <option value="국내">여행 - 국내</option>
                     <option value="일본">여행 - 일본</option>
@@ -408,13 +452,25 @@
                     <option value="이것좀 추가해라">기타 - 이것좀 추가해라</option>
                 </select>
             </div>
+
+            <!-- 여행 카테고리 전용 지도 옵션 -->
+            <div class="travel-map-option" id="travelMapOption">
+                <label>🗺️ 여행 위치 선택 (네이버 지도 / 구글 맵)</label>
+                <div class="row">
+                    <select id="mapType" style="width: 140px;">
+                        <option value="naver">네이버 지도</option>
+                        <option value="google">구글 지도</option>
+                    </select>
+                    <input type="text" id="mapQuery" placeholder="장소명 또는 키워드 입력 (예: 도쿄 타워, 강남역 맛집)">
+                </div>
+            </div>
+
             <div class="form-group">
                 <label>제목</label>
                 <input type="text" id="postTitle" placeholder="제목을 입력하세요">
             </div>
             <div class="form-group">
                 <label>본문 내용 & 문서 편집 도구</label>
-                <!-- 에디터 툴바 -->
                 <div class="editor-toolbar">
                     <select onchange="execCmd('fontName', this.value)">
                         <option value="Noto Sans KR">Noto Sans</option>
@@ -436,16 +492,28 @@
                     <button onclick="execCmd('justifyCenter')">중앙</button>
                     <button onclick="execCmd('justifyRight')">우</button>
                     <button onclick="triggerImageUpload()">📷 사진 본문 삽입</button>
+                    <button onclick="resizeSelectedImg(50)">🔍 사진 50%</button>
+                    <button onclick="resizeSelectedImg(100)">🔍 사진 100%</button>
                     <input type="file" id="inlineImageInput" accept="image/*" multiple style="display:none;" onchange="insertInlineImages(this)">
                 </div>
-                <!-- WYSIWYG 에디터 본문 -->
-                <div class="editor-body" id="editorBody" contenteditable="true" placeholder="글을 작성하세요..."></div>
+                <div class="editor-body" id="editorBody" contenteditable="true"></div>
             </div>
             <button class="btn-submit-post" onclick="savePost()">등록 완료</button>
         </div>
     </div>
 
-    <!-- 관리자 내역 확인 모달 -->
+    <!-- 전체 지도 모아보기 모달 -->
+    <div class="modal-overlay" id="allMapModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="allMapTitle">🗺️ 여행지 지도 한눈에 보기</h3>
+                <button class="close-btn" onclick="closeAllMapModal()">✖</button>
+            </div>
+            <div id="allMapBody"></div>
+        </div>
+    </div>
+
+    <!-- 관리자 내역 모달 -->
     <div class="modal-overlay" id="adminLogModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -462,13 +530,13 @@
         let currentUser = localStorage.getItem('logged_in_user') || null;
         let editingPostId = null;
         let currentCategoryFilter = '전체';
+        const travelCategories = ['국내', '일본', '맛집/카페', '성지순례', '쇼핑'];
 
         window.onload = function() {
             checkLoginStatus();
             showBoard('전체');
         };
 
-        // 로그인 상태 체크
         function checkLoginStatus() {
             if (currentUser) {
                 let adminBtnHtml = currentUser === 'admin' ? `<button class="btn-admin" onclick="openAdminLogModal()">📋 수정/삭제 내역</button>` : '';
@@ -480,14 +548,13 @@
             }
         }
 
-        // 로그인
         function login() {
             const id = document.getElementById('username').value.trim();
             const pw = document.getElementById('password').value.trim();
             if (!id || !pw) return alert('아이디와 비밀번호를 입력해 주세요.');
             
             const savedPw = localStorage.getItem('user_' + id);
-            if (savedPw === pw || (id === 'admin' && pw === 'admin')) { // admin/admin 기본 지원
+            if (savedPw === pw || (id === 'admin' && pw === 'admin')) {
                 currentUser = id;
                 localStorage.setItem('logged_in_user', currentUser);
                 alert(id + '님 환영합니다!');
@@ -498,34 +565,29 @@
             }
         }
 
-        // 회원가입
         function signUp() {
             const id = document.getElementById('username').value.trim();
             const pw = document.getElementById('password').value.trim();
             if(!id || !pw) return alert('아이디와 비밀번호를 입력해 주세요.');
             if(localStorage.getItem('user_' + id)) return alert('이미 존재하는 아이디입니다.');
             localStorage.setItem('user_' + id, pw);
-            alert('회원가입 성공! 로그인해 보세요.');
+            alert('회원가입 성공!');
         }
 
-        // 로그아웃
         function logout() {
             currentUser = null;
             localStorage.removeItem('logged_in_user');
             location.reload();
         }
 
-        // 에디터 명령어 실행
         function execCmd(command, value = null) {
             document.execCommand(command, false, value);
         }
 
-        // 에디터 본문 사진 선택 트리거
         function triggerImageUpload() {
             document.getElementById('inlineImageInput').click();
         }
 
-        // 사진을 커서 위치에 바로 삽입
         function insertInlineImages(input) {
             const files = Array.from(input.files);
             if (files.length === 0) return;
@@ -533,7 +595,7 @@
             files.forEach(file => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const imgHtml = `<img src="${e.target.result}"><br>`;
+                    const imgHtml = `<img src="${e.target.result}" style="max-width:80%; cursor:pointer;"><br>`;
                     document.getElementById('editorBody').focus();
                     document.execCommand('insertHTML', false, imgHtml);
                 };
@@ -542,12 +604,30 @@
             input.value = '';
         }
 
-        // 글 작성 모달 열기
-        function openWriteModal(postId = null) {
-            if (!currentUser) {
-                alert('글을 작성하려면 먼저 로그인해 주세요.');
-                return;
+        function resizeSelectedImg(percent) {
+            const sel = window.getSelection();
+            if (sel.rangeCount > 0) {
+                const node = sel.anchorNode;
+                const img = node.querySelector ? node.querySelector('img') : (node.parentNode.tagName === 'IMG' ? node.parentNode : null);
+                if (img) {
+                    img.style.width = percent + '%';
+                } else {
+                    alert('크기를 조정할 이미지를 먼저 클릭해 주세요.');
+                }
             }
+        }
+
+        function toggleMapOption(category) {
+            const mapOpt = document.getElementById('travelMapOption');
+            if (travelCategories.includes(category)) {
+                mapOpt.style.display = 'block';
+            } else {
+                mapOpt.style.display = 'none';
+            }
+        }
+
+        function openWriteModal(postId = null) {
+            if (!currentUser) return alert('로그인 후 이용해 주세요.');
 
             editingPostId = postId;
             const modal = document.getElementById('writeModal');
@@ -558,12 +638,18 @@
                 document.getElementById('postCategory').value = post.category;
                 document.getElementById('postTitle').value = post.title;
                 document.getElementById('editorBody').innerHTML = post.content;
+                toggleMapOption(post.category);
+                if (post.mapData) {
+                    document.getElementById('mapType').value = post.mapData.type;
+                    document.getElementById('mapQuery').value = post.mapData.query;
+                }
             } else {
                 document.getElementById('modalTitle').innerText = "✍️ 새 포스팅 작성하기";
                 document.getElementById('postTitle').value = '';
                 document.getElementById('editorBody').innerHTML = '';
+                document.getElementById('mapQuery').value = '';
+                toggleMapOption(document.getElementById('postCategory').value);
             }
-            
             modal.style.display = 'flex';
         }
 
@@ -571,45 +657,35 @@
             document.getElementById('writeModal').style.display = 'none';
         }
 
-        // 게시글 저장 (신규/수정)
         function savePost() {
             const category = document.getElementById('postCategory').value;
             const title = document.getElementById('postTitle').value.trim();
             const content = document.getElementById('editorBody').innerHTML.trim();
+            const mapType = document.getElementById('mapType').value;
+            const mapQuery = document.getElementById('mapQuery').value.trim();
 
-            if (!title || !content) {
-                alert("제목과 본문을 모두 입력해 주세요.");
-                return;
+            if (!title || !content) return alert("제목과 본문을 입력하세요.");
+
+            let mapData = null;
+            if (travelCategories.includes(category) && mapQuery) {
+                mapData = { type: mapType, query: mapQuery };
             }
 
             if (editingPostId) {
-                // 수정
                 const postIndex = posts.findIndex(p => p.id === editingPostId);
-                const oldPost = posts[postIndex];
-
                 posts[postIndex] = {
-                    ...oldPost,
-                    category: category,
-                    title: title,
-                    content: content
+                    ...posts[postIndex],
+                    category, title, content, mapData
                 };
-
-                // 관리자 내역 기록
-                addAdminLog('수정', oldPost.title, currentUser);
-                alert("글이 성공적으로 수정되었습니다.");
+                addAdminLog('수정', title, currentUser);
             } else {
-                // 신규 작성
                 const newPost = {
-                    id: Date.now(),
-                    category: category,
-                    title: title,
-                    content: content,
+                    id: Date.now(), category, title, content, mapData,
                     author: currentUser,
                     date: new Date().toLocaleDateString('ko-KR'),
                     views: 0
                 };
                 posts.unshift(newPost);
-                alert("포스팅이 등록되었습니다!");
             }
 
             localStorage.setItem('blog_posts', JSON.stringify(posts));
@@ -617,24 +693,27 @@
             showBoard(category);
         }
 
-        // 게시판 리스트 뷰 전환
         function showBoard(category) {
             currentCategoryFilter = category;
             const main = document.getElementById('mainContent');
-            
+            const isTravel = travelCategories.includes(category);
+
             const filteredPosts = category === '전체' 
                 ? posts 
                 : posts.filter(p => p.category === category);
+
+            let mapOverviewBtn = isTravel ? `<button class="map-overview-btn" onclick="openAllMapModal('${category}')">🗺️ ${category} 여행지 지도 한눈에 보기</button>` : '';
 
             let rowsHtml = '';
             if (filteredPosts.length === 0) {
                 rowsHtml = `<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:30px;">등록된 글이 없습니다.</td></tr>`;
             } else {
                 filteredPosts.forEach(post => {
+                    let mapTag = post.mapData ? ` 📍` : '';
                     rowsHtml += `
                         <tr>
                             <td><span class="badge">${post.category}</span></td>
-                            <td class="title-cell" onclick="viewPost(${post.id})">${escapeHtml(post.title)}</td>
+                            <td class="title-cell" onclick="viewPost(${post.id})">${escapeHtml(post.title)}${mapTag}</td>
                             <td>${post.author || '익명'}</td>
                             <td>${post.date}</td>
                             <td>${post.views || 0}</td>
@@ -649,6 +728,7 @@
                         <h2>📂 ${category} 목록</h2>
                         <span style="font-size:13px; color:#64748b;">총 ${filteredPosts.length}개의 글</span>
                     </div>
+                    ${mapOverviewBtn}
                     <table class="board-table">
                         <thead>
                             <tr>
@@ -659,36 +739,49 @@
                                 <th style="width: 10%;">조회수</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            ${rowsHtml}
-                        </tbody>
+                        <tbody>${rowsHtml}</tbody>
                     </table>
                 </div>
             `;
         }
 
-        // 상세보기 뷰 전환
         function viewPost(postId) {
             const post = posts.find(p => p.id === postId);
             if (!post) return;
 
-            // 조회수 증가
             post.views = (post.views || 0) + 1;
             localStorage.setItem('blog_posts', JSON.stringify(posts));
 
-            const isAuthor = currentUser && (currentUser === post.author || currentUser === 'admin');
-            let actionBtns = '';
-            if (isAuthor) {
-                actionBtns = `
-                    <div>
-                        <button class="btn-opt btn-edit" onclick="openWriteModal(${post.id})">수정</button>
-                        <button class="btn-opt btn-delete" onclick="deletePost(${post.id})">삭제</button>
+            let mapHtml = '';
+            if (post.mapData && post.mapData.query) {
+                const encodedQuery = encodeURIComponent(post.mapData.query);
+                let iframeSrc = '';
+                if (post.mapData.type === 'google') {
+                    iframeSrc = `https://maps.google.com/maps?q=${encodedQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+                } else {
+                    iframeSrc = `https://m.map.naver.com/search2/search.naver?query=${encodedQuery}`;
+                }
+
+                mapHtml = `
+                    <div class="map-container-box">
+                        <h4>📍 위치 정보: ${escapeHtml(post.mapData.query)} (${post.mapData.type === 'google' ? '구글 지도' : '네이버 지도'})</h4>
+                        ${post.mapData.type === 'google' 
+                            ? `<iframe class="map-iframe" src="${iframeSrc}"></iframe>`
+                            : `<iframe class="map-iframe" src="${iframeSrc}"></iframe>`
+                        }
                     </div>
                 `;
             }
 
-            const main = document.getElementById('mainContent');
-            main.innerHTML = `
+            const isAuthor = currentUser && (currentUser === post.author || currentUser === 'admin');
+            let actionBtns = isAuthor ? `
+                <div>
+                    <button class="btn-opt btn-edit" onclick="openWriteModal(${post.id})">수정</button>
+                    <button class="btn-opt btn-delete" onclick="deletePost(${post.id})">삭제</button>
+                </div>
+            ` : '';
+
+            document.getElementById('mainContent').innerHTML = `
                 <div class="post-detail">
                     <h1 class="detail-title">${escapeHtml(post.title)}</h1>
                     <div class="detail-meta">
@@ -697,6 +790,7 @@
                         <span>작성일: ${post.date}</span>
                         <span>조회수: ${post.views}</span>
                     </div>
+                    ${mapHtml}
                     <div class="detail-body">${post.content}</div>
                     <div class="detail-actions">
                         <button class="btn-opt btn-back" onclick="showBoard('${currentCategoryFilter}')">← 목록으로</button>
@@ -706,59 +800,61 @@
             `;
         }
 
-        // 게시글 삭제
-        function deletePost(postId) {
-            if (!confirm("정말로 이 글을 삭제하시겠습니까?")) return;
+        function openAllMapModal(category) {
+            const filteredPosts = posts.filter(p => p.category === category && p.mapData && p.mapData.query);
+            const container = document.getElementById('allMapBody');
             
+            if (filteredPosts.length === 0) {
+                container.innerHTML = `<p style="text-align:center; color:#888; padding:20px;">등록된 지도가 있는 여행글이 없습니다.</p>`;
+            } else {
+                let html = '<div style="display:flex; flex-direction:column; gap:20px;">';
+                filteredPosts.forEach(post => {
+                    const encodedQuery = encodeURIComponent(post.mapData.query);
+                    const iframeSrc = post.mapData.type === 'google'
+                        ? `https://maps.google.com/maps?q=${encodedQuery}&t=&z=14&ie=UTF8&iwloc=&output=embed`
+                        : `https://m.map.naver.com/search2/search.naver?query=${encodedQuery}`;
+
+                    html += `
+                        <div style="border:1px solid #bae6fd; padding:15px; border-radius:8px; background:#f0f9ff;">
+                            <h4 style="margin:0 0 8px 0; color:#0369a1; cursor:pointer;" onclick="closeAllMapModal(); viewPost(${post.id});">📌 ${escapeHtml(post.title)} (${post.mapData.query})</h4>
+                            <iframe class="map-iframe" src="${iframeSrc}" style="height:250px;"></iframe>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            }
+            document.getElementById('allMapModal').style.display = 'flex';
+        }
+
+        function closeAllMapModal() {
+            document.getElementById('allMapModal').style.display = 'none';
+        }
+
+        function deletePost(postId) {
+            if (!confirm("정말로 삭제하시겠습니까?")) return;
             const post = posts.find(p => p.id === postId);
             if (post) {
                 addAdminLog('삭제', post.title, currentUser);
                 posts = posts.filter(p => p.id !== postId);
                 localStorage.setItem('blog_posts', JSON.stringify(posts));
-                alert("삭제되었습니다.");
                 showBoard(currentCategoryFilter);
             }
         }
 
-        // 관리자 로그 기록 추가
         function addAdminLog(action, title, user) {
-            const log = {
-                action: action,
-                title: title,
-                user: user,
-                time: new Date().toLocaleString('ko-KR')
-            };
-            adminLogs.unshift(log);
+            adminLogs.unshift({ action, title, user, time: new Date().toLocaleString('ko-KR') });
             localStorage.setItem('admin_logs', JSON.stringify(adminLogs));
         }
 
-        // 관리자 로그 모달
         function openAdminLogModal() {
             const container = document.getElementById('adminLogList');
             if (adminLogs.length === 0) {
-                container.innerHTML = `<p style="text-align:center; color:#888;">수정 및 삭제 내역이 없습니다.</p>`;
+                container.innerHTML = `<p style="text-align:center; color:#888;">기록이 없습니다.</p>`;
             } else {
-                let html = `
-                    <table class="log-table">
-                        <thead>
-                            <tr>
-                                <th>구분</th>
-                                <th>글 제목</th>
-                                <th>작업자</th>
-                                <th>일시</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `;
+                let html = `<table class="log-table"><thead><tr><th>구분</th><th>글 제목</th><th>작업자</th><th>일시</th></tr></thead><tbody>`;
                 adminLogs.forEach(log => {
-                    html += `
-                        <tr>
-                            <td style="color:${log.action === '삭제' ? '#ef4444':'#0ea5e9'}; font-weight:bold;">${log.action}</td>
-                            <td>${escapeHtml(log.title)}</td>
-                            <td>${log.user}</td>
-                            <td>${log.time}</td>
-                        </tr>
-                    `;
+                    html += `<tr><td style="color:${log.action === '삭제' ? '#ef4444':'#0ea5e9'}; font-weight:bold;">${log.action}</td><td>${escapeHtml(log.title)}</td><td>${log.user}</td><td>${log.time}</td></tr>`;
                 });
                 html += `</tbody></table>`;
                 container.innerHTML = html;
