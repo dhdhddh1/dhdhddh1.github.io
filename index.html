@@ -33,7 +33,6 @@
         .logo-title h1 { margin: 0; font-size: 20px; color: #1e40af; cursor: pointer; word-break: keep-all; }
         .logo-title p { margin: 3px 0 0; color: #3b82f6; font-size: 12px; }
 
-        /* 로그인 / 회원가입 폼 */
         .auth-box { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
         .auth-box input {
             padding: 6px 8px;
@@ -55,7 +54,6 @@
         }
         .auth-box button.btn-signup { background-color: #60a5fa; }
 
-        /* 전체 레이아웃 */
         .container {
             display: flex;
             max-width: 1400px;
@@ -64,7 +62,6 @@
             gap: 15px;
         }
 
-        /* 좌측 사이드바 */
         aside {
             width: 210px;
             background: #ffffff;
@@ -103,10 +100,8 @@
         }
         .admin-category-box .category-title { color: #dc2626; }
 
-        /* 메인 콘텐츠 영역 */
         main { flex: 1; min-width: 0; }
 
-        /* 게시판 리스트 카드 */
         .board-card {
             background: white;
             padding: 20px;
@@ -169,7 +164,6 @@
             margin-right: 4px;
         }
 
-        /* 상세 화면 */
         .post-detail {
             background: white;
             padding: 20px;
@@ -235,9 +229,7 @@
             font-size: 11px;
             cursor: pointer;
             opacity: 0.8;
-            transition: opacity 0.2s;
         }
-        .img-wrapper:hover .img-download-btn { opacity: 1; }
 
         .detail-actions {
             margin-top: 20px;
@@ -258,7 +250,6 @@
         .btn-edit { background-color: #0ea5e9; color: white; margin-right: 4px; }
         .btn-delete { background-color: #ef4444; color: white; }
 
-        /* 댓글 스타일 */
         .comments-section {
             margin-top: 25px;
             border-top: 2px solid #e0f2fe;
@@ -282,7 +273,6 @@
         .reply-box input { flex: 1; padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 11px; }
         .reply-box button { background: #2563eb; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; }
 
-        /* Floating + 버튼 */
         .fab-btn {
             position: fixed;
             bottom: 25px;
@@ -301,7 +291,6 @@
             z-index: 100;
         }
 
-        /* 모달 (팝업창) */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -516,15 +505,17 @@
                         <option value="Gungsuh">궁서체</option>
                         <option value="Comic Sans MS">Comic Sans</option>
                     </select>
-                    <button onclick="execCmd('bold')"><b>B</b></button>
-                    <button onclick="execCmd('italic')"><i>I</i></button>
-                    <button onclick="execCmd('underline')"><u>U</u></button>
-                    <button onclick="triggerImageUpload()">📷 사진 삽입 (압축저장)</button>
+                    <button type="button" onclick="execCmd('bold')"><b>B</b></button>
+                    <button type="button" onclick="execCmd('italic')"><i>I</i></button>
+                    <button type="button" onclick="execCmd('underline')"><u>U</u></button>
+                    <button type="button" onclick="resizeSelectedImg(50)">🔍 사진 50%</button>
+                    <button type="button" onclick="resizeSelectedImg(100)">🔍 사진 100%</button>
+                    <button type="button" onclick="triggerImageUpload()">📷 사진 삽입 (압축)</button>
                     <input type="file" id="inlineImageInput" accept="image/*" multiple style="display:none;" onchange="insertCompressedImages(this)">
                 </div>
                 <div class="editor-body" id="editorBody" contenteditable="true"></div>
             </div>
-            <button class="btn-submit-post" onclick="savePost()">등록 완료</button>
+            <button type="button" class="btn-submit-post" onclick="savePost(event)">등록 완료</button>
         </div>
     </div>
 
@@ -540,7 +531,6 @@
     </div>
 
     <script>
-        // 1. Firebase 초기화 설정
         const firebaseConfig = {
             apiKey: "AIzaSyCJYdTKfJTqhArQ-jdfZ-nK7LbxcSq02cs",
             authDomain: "dhdhddh1-nina.firebaseapp.com",
@@ -575,7 +565,6 @@
             listenRealtimeDeletedPosts();
         };
 
-        // 실시간 포스트 수신 (Firebase)
         function listenRealtimePosts() {
             db.collection("posts").orderBy("createdAt", "desc").onSnapshot(snapshot => {
                 posts = [];
@@ -586,7 +575,6 @@
             });
         }
 
-        // 실시간 삭제된 포스트 수신 (Firebase)
         function listenRealtimeDeletedPosts() {
             db.collection("deleted_posts").orderBy("deletedAt", "desc").onSnapshot(snapshot => {
                 deletedPosts = [];
@@ -616,7 +604,6 @@
         }
         function closeSignUpModal() { document.getElementById('signupModal').style.display = 'none'; }
 
-        // 닉네임 중복 체크 (Firebase DB 검수)
         async function checkNickDuplicate() {
             const nick = document.getElementById('regNick').value.trim();
             if (!nick) return alert('닉네임을 입력해 주세요.');
@@ -637,7 +624,6 @@
             checkedNickValue = '';
         }
 
-        // 회원가입
         async function processSignUp() {
             const phone = document.getElementById('regPhone').value.replace(/[^0-9]/g, '');
             const pw = document.getElementById('regPw').value.trim();
@@ -659,7 +645,6 @@
             closeSignUpModal();
         }
 
-        // 로그인
         async function login() {
             const phone = document.getElementById('userPhone').value.trim().replace(/[^0-9]/g, '');
             const pw = document.getElementById('userPw').value.trim();
@@ -696,6 +681,7 @@
         function execCmd(cmd, val = null) { document.execCommand(cmd, false, val); }
         function triggerImageUpload() { document.getElementById('inlineImageInput').click(); }
 
+        /* 사진 고압축 리사이징 (최대 600px, 0.5 화질) */
         function insertCompressedImages(input) {
             const files = Array.from(input.files);
             files.forEach(file => {
@@ -707,7 +693,7 @@
                         const canvas = document.createElement('canvas');
                         let width = img.width;
                         let height = img.height;
-                        const max_size = 800;
+                        const max_size = 600;
 
                         if (width > max_size) {
                             height = Math.round((height * max_size) / width);
@@ -719,8 +705,8 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
 
-                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
-                        const imgHtml = `<img src="${compressedDataUrl}"><br>`;
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.5);
+                        const imgHtml = `<img src="${compressedDataUrl}" style="max-width:100%; cursor:pointer;"><br>`;
                         document.getElementById('editorBody').focus();
                         document.execCommand('insertHTML', false, imgHtml);
                     };
@@ -728,6 +714,19 @@
                 reader.readAsDataURL(file);
             });
             input.value = '';
+        }
+
+        function resizeSelectedImg(percent) {
+            const sel = window.getSelection();
+            if (sel.rangeCount > 0) {
+                const node = sel.anchorNode;
+                const img = node.querySelector ? node.querySelector('img') : (node.parentNode && node.parentNode.tagName === 'IMG' ? node.parentNode : null);
+                if (img) {
+                    img.style.width = percent + '%';
+                } else {
+                    alert('크기를 조절할 이미지를 본문에서 클릭한 뒤 버튼을 눌러주세요.');
+                }
+            }
         }
 
         function handleCategoryChange(cat) {
@@ -769,8 +768,10 @@
 
         function closeWriteModal() { document.getElementById('writeModal').style.display = 'none'; }
 
-        // 포스트 저장 (Firebase DB)
-        async function savePost() {
+        /* 포스트 저장 및 튕김 방지 */
+        async function savePost(e) {
+            if (e) e.preventDefault();
+
             const category = document.getElementById('postCategory').value;
             const title = document.getElementById('postTitle').value.trim();
             const content = document.getElementById('editorBody').innerHTML.trim();
@@ -785,22 +786,30 @@
                 youtubeUrl: youtubeCategories.includes(category) ? youtubeUrl : null
             };
 
-            if (editingPostId) {
-                await db.collection("posts").doc(editingPostId).update(postData);
-            } else {
-                await db.collection("posts").add({
-                    ...postData,
-                    authorNick: currentUser.nick,
-                    authorPhone: currentUser.phone,
-                    date: new Date().toLocaleDateString('ko-KR'),
-                    createdAt: Date.now(),
-                    views: 0,
-                    comments: []
-                });
+            try {
+                if (editingPostId) {
+                    await db.collection("posts").doc(editingPostId).update(postData);
+                    alert("수정이 완료되었습니다.");
+                    const docId = editingPostId;
+                    closeWriteModal();
+                    viewPost(docId);
+                } else {
+                    const docRef = await db.collection("posts").add({
+                        ...postData,
+                        authorNick: currentUser.nick,
+                        authorPhone: currentUser.phone,
+                        date: new Date().toLocaleDateString('ko-KR'),
+                        createdAt: Date.now(),
+                        views: 0,
+                        comments: []
+                    });
+                    alert("포스팅이 등록되었습니다!");
+                    closeWriteModal();
+                    viewPost(docRef.id);
+                }
+            } catch (err) {
+                alert("저장 중 오류가 발생했습니다. 사진 용량을 줄여서 다시 시도해보세요.");
             }
-
-            closeWriteModal();
-            showBoard(category);
         }
 
         function showBoard(category) {
@@ -867,7 +876,6 @@
             const post = posts.find(p => p.id === postId);
             if (!post) return;
 
-            // 조회수 증가
             db.collection("posts").doc(postId).update({ views: (post.views || 0) + 1 });
 
             let mapHtml = post.mapQuery ? `
@@ -906,7 +914,7 @@
                         <span>카테고리: <b>${post.category}</b></span>
                         <span>작성자: <b>${post.authorNick}</b></span>
                         <span>작성일: ${post.date}</span>
-                        <span>조회수: ${post.views + 1}</span>
+                        <span>조회수: ${(post.views || 0) + 1}</span>
                     </div>
                     ${mapHtml}
                     ${ytHtml}
