@@ -480,6 +480,9 @@
                 <input type="text" id="adminOtpCode" placeholder="6자리 숫자" maxlength="6">
             </div>
             <button type="button" class="btn-submit-post" onclick="confirmAdminOtp()">인증 완료</button>
+            <p style="text-align:center; margin-top:8px;">
+                <a onclick="resendAdminOtp()" style="font-size:11px; color:#2563eb; cursor:pointer; text-decoration:underline;">인증번호를 못 받으셨나요? 재전송</a>
+            </p>
         </div>
     </div>
     <!-- Firebase Phone Auth용 invisible reCAPTCHA 자리 -->
@@ -846,13 +849,19 @@
                 document.getElementById('adminOtpCode').value = '';
                 document.getElementById('adminOtpModal').style.display = 'flex';
             } catch (e) {
-                alert('인증번호 전송에 실패했습니다: ' + e.message);
+                alert(describePhoneAuthError(e));
+                // 실패한 reCAPTCHA 위젯은 재사용하면 안 되므로 초기화 후 다음 시도 때 새로 생성
                 if (recaptchaVerifier) {
                     recaptchaVerifier.clear();
                     recaptchaVerifier = null;
                 }
                 pendingAdminUser = null;
             }
+        }
+
+        async function resendAdminOtp() {
+            if (!pendingAdminUser) return alert('인증 요청 정보가 없습니다. 다시 로그인해 주세요.');
+            await startAdminPhoneVerification(pendingAdminUser.phone);
         }
 
         async function confirmAdminOtp() {
@@ -867,7 +876,34 @@
                 finalizeLogin(pendingAdminUser.phone, pendingAdminUser.nick);
                 pendingAdminUser = null;
             } catch (e) {
-                alert('인증번호가 올바르지 않습니다. 다시 확인해 주세요.');
+                if (e && e.code === 'auth/invalid-verification-code') {
+                    alert('인증번호가 올바르지 않습니다. 다시 확인해 주세요.');
+                } else if (e && e.code === 'auth/code-expired') {
+                    alert('인증번호 유효 시간이 만료되었습니다. "재전송"을 눌러 새 인증번호를 받아주세요.');
+                } else {
+                    alert('인증에 실패했습니다: ' + (e.message || e));
+                }
+            }
+        }
+
+        // Android/Web 공통으로 자주 발생하는 Firebase Phone Auth 오류를 사람이 읽을 수 있는 문구로 변환
+        function describePhoneAuthError(e) {
+            const code = e && e.code;
+            switch (code) {
+                case 'auth/invalid-phone-number':
+                    return '전화번호 형식이 올바르지 않습니다. (+82 국가코드 변환 확인)';
+                case 'auth/too-many-requests':
+                    return '짧은 시간 내 인증 요청이 너무 많습니다. (SMS 발송 한도 초과) 잠시 후 다시 시도해 주세요.';
+                case 'auth/quota-exceeded':
+                    return '이 프로젝트의 SMS 발송 한도를 초과했습니다. Firebase 콘솔에서 한도를 확인해 주세요.';
+                case 'auth/captcha-check-failed':
+                    return 'reCAPTCHA 확인에 실패했습니다. 새로고침 후 다시 시도해 주세요.';
+                case 'auth/operation-not-allowed':
+                    return 'Firebase 콘솔 > Authentication > 로그인 방법에서 "전화" 로그인이 아직 활성화되지 않았습니다.';
+                case 'auth/unauthorized-domain':
+                    return '이 도메인이 Firebase 승인된 도메인 목록에 없습니다. 콘솔의 Authentication > 설정 > 승인된 도메인에 추가해 주세요.';
+                default:
+                    return '인증번호 전송에 실패했습니다: ' + (e && e.message ? e.message : e);
             }
         }
 
