@@ -8,6 +8,7 @@
     <!-- Firebase SDK (Compat 모드) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <!-- 저장형 XSS 방지를 위한 HTML 살균 라이브러리 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
 
@@ -450,6 +451,7 @@
                     <li><a onclick="showBoard('독서')">ㆍ 독서</a></li>
                     <li><a onclick="showBoard('주식')">ㆍ 주식</a></li>
                     <li><a onclick="showBoard('이것좀 추가해라')">ㆍ 이것좀 추가해라</a></li>
+                    <li><a onclick="showBoard('아무 카테고리에도 들지 않는 똥글 올릴 수 있는곳')">ㆍ 아무 카테고리에도 들지 않는 똥글 올릴 수 있는곳</a></li>
                 </ul>
             </div>
 
@@ -548,6 +550,7 @@
                     <option value="독서">기타 - 독서</option>
                     <option value="주식">기타 - 주식</option>
                     <option value="이것좀 추가해라">기타 - 이것좀 추가해라</option>
+                    <option value="아무 카테고리에도 들지 않는 똥글 올릴 수 있는곳">기타 - 아무 카테고리에도 들지 않는 똥글 올릴 수 있는곳</option>
                 </select>
             </div>
 
@@ -606,7 +609,7 @@
                     <input type="file" id="inlineImageInput" accept="image/*" multiple style="display:none;" onchange="insertCompressedImages(this)">
                 </div>
                 <div class="editor-body" id="editorBody" contenteditable="true"></div>
-                <p style="font-size:11px; color:#94a3b8; margin-top:4px;">※ 일반 사진은 자동 압축되어 삽입되고, GIF(움짤)는 애니메이션 보존을 위해 압축 없이 삽입됩니다 (최대 800KB).</p>
+                <p style="font-size:11px; color:#94a3b8; margin-top:4px;">※ 일반 사진은 자동 압축되어 삽입되고, GIF(움짤)는 애니메이션 보존을 위해 압축 없이 업로드되어 삽입됩니다 (최대 8MB, 업로드 중에는 잠시 기다려 주세요).</p>
             </div>
             <button type="button" class="btn-submit-post" onclick="savePost(event)">등록 완료</button>
         </div>
@@ -636,6 +639,11 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // 용량이 큰 움짤(GIF)은 Firestore 문서(1MB 제한)가 아닌 Firebase Storage에 올리고
+        // 본문에는 다운로드 URL만 저장 → 사실상 용량 제한이 크게 완화됨
+        let pendingGifUploads = 0;
 
         const ADMIN_PHONE = '01022712986';
         const MAX_LOGIN_ATTEMPTS = 5;
@@ -710,6 +718,8 @@
                 }
             } else if (currentView.type === 'list') {
                 showBoard(currentCategoryFilter);
+            } else if (currentView.type === 'mypage') {
+                renderMyPageView(document.getElementById('mainContent'), currentView.tab);
             }
             // 회원목록/삭제된글 관리 화면은 각자의 리스너/재조회 로직에서 처리
         }
@@ -721,6 +731,7 @@
                 const isAdmin = currentUser.phone === ADMIN_PHONE;
                 document.getElementById('authBox').innerHTML = `
                     <span style="color:#1d4ed8; font-weight:bold; font-size:13px;">👤 ${escapeHtml(currentUser.nick)}${isAdmin ? ' (관리자)' : ''}님</span>
+                    <button type="button" onclick="showBoard('마이페이지')">마이페이지</button>
                     <button type="button" onclick="logout()">로그아웃</button>
                 `;
                 if (isAdmin) document.getElementById('adminCategoryMenu').style.display = 'block';
@@ -953,19 +964,41 @@
             input.value = '';
         }
 
-        // GIF는 캔버스로 다시 그리면 애니메이션이 깨지므로 압축하지 않고 그대로 삽입 (용량만 제한)
+        // GIF는 캔버스로 다시 그리면 애니메이션이 깨지므로 압축하지 않음.
+        // Firestore 문서 용량 제한(1MB) 때문에 예전엔 800KB까지만 가능했지만,
+        // Firebase Storage에 파일 자체를 올리고 본문에는 URL만 저장하는 방식으로 바꿔
+        // 최대 8MB까지 움짤을 넣을 수 있도록 넓힘.
         function insertGifImage(file) {
-            const MAX_GIF_BYTES = 800 * 1024;
+            const MAX_GIF_BYTES = 8 * 1024 * 1024;
             if (file.size > MAX_GIF_BYTES) {
-                return alert(`GIF 용량이 너무 큽니다 (${Math.round(file.size / 1024)}KB). 800KB 이하의 움짤만 업로드할 수 있습니다.`);
+                return alert(`GIF 용량이 너무 큽니다 (${Math.round(file.size / 1024)}KB). 8MB 이하의 움짤만 업로드할 수 있습니다.`);
             }
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const imgHtml = `<img src="${e.target.result}" style="max-width:100%; cursor:pointer;"><br>`;
-                document.getElementById('editorBody').focus();
-                document.execCommand('insertHTML', false, imgHtml);
-            };
-            reader.readAsDataURL(file);
+
+            const editorBody = document.getElementById('editorBody');
+            editorBody.focus();
+            const placeholderId = 'gifUploading_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+            document.execCommand('insertHTML', false, `<span id="${placeholderId}" contenteditable="false" style="color:#0284c7; font-size:12px;">⏳ 움짤 업로드 중... (${Math.round(file.size / 1024)}KB)</span>`);
+
+            pendingGifUploads++;
+            const fileName = `gif_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.gif`;
+            const ref = storage.ref().child('post_gifs/' + fileName);
+
+            ref.put(file, { contentType: file.type || 'image/gif' })
+                .then(snapshot => snapshot.ref.getDownloadURL())
+                .then(url => {
+                    const placeholder = document.getElementById(placeholderId);
+                    if (placeholder) {
+                        placeholder.outerHTML = `<img src="${url}" style="max-width:100%; cursor:pointer;"><br>`;
+                    }
+                })
+                .catch(err => {
+                    const placeholder = document.getElementById(placeholderId);
+                    if (placeholder) placeholder.remove();
+                    alert('움짤 업로드에 실패했습니다: ' + err.message);
+                })
+                .finally(() => {
+                    pendingGifUploads--;
+                });
         }
 
         function insertCompressedStaticImage(file) {
@@ -1163,6 +1196,7 @@
         async function savePost(e) {
             if (e) e.preventDefault();
             if (!currentUser) return alert('로그인 후 이용해 주세요.');
+            if (pendingGifUploads > 0) return alert('움짤 업로드가 끝날 때까지 잠시만 기다려 주세요.');
 
             const category = document.getElementById('postCategory').value;
             const title = document.getElementById('postTitle').value.trim();
@@ -1241,6 +1275,12 @@
                 if (currentUser.phone !== ADMIN_PHONE) return showBoard('전체');
                 currentView = { type: 'admin-members' };
                 renderMemberListView(main);
+                return;
+            }
+
+            if (category === '마이페이지') {
+                currentView = { type: 'mypage', tab: 'posts' };
+                renderMyPageView(main, 'posts');
                 return;
             }
 
@@ -1673,6 +1713,86 @@
             } catch (e) {
                 alert('삭제 실패: ' + e.message);
             }
+        }
+
+        /* ===================== 마이페이지 ===================== */
+
+        function myPageSwitchTab(tab) {
+            currentView = { type: 'mypage', tab };
+            renderMyPageView(document.getElementById('mainContent'), tab);
+        }
+
+        function renderMyPageView(container, tab) {
+            if (!currentUser) return;
+
+            const myPosts = posts
+                .filter(p => p.authorPhone === currentUser.phone)
+                .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+            let myComments = [];
+            posts.forEach(p => {
+                (p.comments || []).forEach(c => {
+                    if (c.authorPhone === currentUser.phone) {
+                        myComments.push({ ...c, postId: p.id, postTitle: p.title });
+                    }
+                });
+            });
+            myComments.sort((a, b) => b.id - a.id);
+
+            let bodyHtml = '';
+            if (tab === 'comments') {
+                if (myComments.length === 0) {
+                    bodyHtml = `<p style="text-align:center; color:#94a3b8; padding:20px;">작성한 댓글이 없습니다.</p>`;
+                } else {
+                    bodyHtml = myComments.map(c => `
+                        <div class="comment-item" style="cursor:pointer;" onclick="viewPost('${c.postId}')">
+                            <div class="comment-meta"><b>📄 ${escapeHtml(c.postTitle)}${c.parentId ? ' (답글)' : ''}</b><span>${c.date}${c.editedAt ? ' <span style="color:#94a3b8;">(수정됨)</span>' : ''}</span></div>
+                            <div>${escapeHtml(c.text)}</div>
+                            ${c.image ? `<div class="comment-img-attach"><img src="${c.image}"></div>` : ''}
+                        </div>
+                    `).join('');
+                }
+            } else {
+                let rowsHtml;
+                if (myPosts.length === 0) {
+                    rowsHtml = `<tr><td colspan="4" style="text-align:center; color:#94a3b8; padding:20px;">작성한 글이 없습니다.</td></tr>`;
+                } else {
+                    rowsHtml = myPosts.map(post => `
+                        <tr>
+                            <td><span class="badge">${post.category}</span></td>
+                            <td class="title-cell" onclick="viewPost('${post.id}')">${escapeHtml(post.title)}${post.editedAt ? ' <span style="color:#94a3b8; font-size:11px;">(수정됨)</span>' : ''}</td>
+                            <td>${post.date}</td>
+                            <td>${post.views || 0}</td>
+                        </tr>
+                    `).join('');
+                }
+                bodyHtml = `
+                    <table class="board-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 22%;">카테고리</th>
+                                <th style="width: 48%;">제목</th>
+                                <th style="width: 18%;">작성일</th>
+                                <th style="width: 12%;">조회</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rowsHtml}</tbody>
+                    </table>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="board-card">
+                    <div class="board-header">
+                        <h2>🙋 마이페이지</h2>
+                    </div>
+                    <div style="display:flex; gap:8px; margin-bottom:15px;">
+                        <button type="button" class="btn-opt ${tab === 'posts' ? 'btn-edit' : 'btn-back'}" onclick="myPageSwitchTab('posts')">내가 작성한 글 (${myPosts.length})</button>
+                        <button type="button" class="btn-opt ${tab === 'comments' ? 'btn-edit' : 'btn-back'}" onclick="myPageSwitchTab('comments')">내가 작성한 댓글 (${myComments.length})</button>
+                    </div>
+                    ${bodyHtml}
+                </div>
+            `;
         }
 
         /* ===================== 지도 모아보기 ===================== */
