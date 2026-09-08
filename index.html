@@ -671,8 +671,8 @@
         let pendingCommentImage = null;
 
         const travelCategories = ['국내', '일본', '맛집/카페', '성지순례', '쇼핑'];
-        const musicCategories = ['음반 / 앨범', '악기 리뷰', '연주 / 연습', '기타 등등'];
-        const youtubeCategories = [...musicCategories, 'OST'];
+        // 유튜브 링크는 카테고리 상관없이 모든 글에 넣을 수 있음.
+        // (여행 카테고리는 여기에 더해 지도까지 추가로 입력)
 
         window.onload = function() {
             checkLoginStatus();
@@ -1154,7 +1154,7 @@
 
         function handleCategoryChange(cat) {
             document.getElementById('mapOptionBox').style.display = travelCategories.includes(cat) ? 'block' : 'none';
-            document.getElementById('youtubeOptionBox').style.display = youtubeCategories.includes(cat) ? 'block' : 'none';
+            document.getElementById('youtubeOptionBox').style.display = 'block';
         }
 
         function extractYoutubeEmbed(url) {
@@ -1217,7 +1217,7 @@
             const postData = {
                 category, title, content,
                 mapQuery: travelCategories.includes(category) ? mapQuery : null,
-                youtubeUrl: youtubeCategories.includes(category) ? youtubeUrl : null
+                youtubeUrl: youtubeUrl || null
             };
 
             try {
