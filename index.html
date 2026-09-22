@@ -61,6 +61,56 @@
         }
         .auth-box button.btn-signup { background-color: #60a5fa; }
 
+        /* 알림 종 아이콘 */
+        .notif-wrap { position: relative; display: inline-flex; align-items: center; }
+        .notif-bell-btn {
+            position: relative;
+            background-color: #60a5fa;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .notif-dot {
+            position: absolute;
+            top: 1px;
+            right: 1px;
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border: 1px solid white;
+            border-radius: 50%;
+        }
+        .notif-hover-preview, .notif-panel {
+            display: none;
+            position: absolute;
+            top: 130%;
+            right: 0;
+            width: 240px;
+            max-height: 260px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 6px;
+            font-size: 11.5px;
+            text-align: left;
+            z-index: 1100;
+        }
+        .notif-hover-preview { box-shadow: 0 4px 10px rgba(0,0,0,0.12); }
+        .notif-panel { box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 1200; }
+        .notif-wrap:hover .notif-hover-preview { display: block; }
+        .notif-item { padding: 6px; border-bottom: 1px solid #f1f5f9; cursor: pointer; color: #334155; }
+        .notif-item:hover { background: #f0f9ff; }
+        .notif-item b { color: #1d4ed8; }
+        .notif-empty { padding: 10px; text-align: center; color: #94a3b8; }
+
         .container {
             display: flex;
             max-width: 1400px;
@@ -416,7 +466,6 @@
                     <li><a onclick="showBoard('음반 / 앨범')">ㆍ 음반 / 앨범</a></li>
                     <li><a onclick="showBoard('악기 리뷰')">ㆍ 악기 리뷰</a></li>
                     <li><a onclick="showBoard('연주 / 연습')">ㆍ 연주 / 연습</a></li>
-                    <li><a onclick="showBoard('기타 등등')">ㆍ 기타 등등</a></li>
                 </ul>
             </div>
 
@@ -426,9 +475,6 @@
                     <li><a onclick="showBoard('분기별 신작')">ㆍ 분기별 신작</a></li>
                     <li><a onclick="showBoard('명작 추천')">ㆍ 명작 추천</a></li>
                     <li><a onclick="showBoard('피규어/굿즈')">ㆍ 피규어/굿즈</a></li>
-                    <li><a onclick="showBoard('성우')">ㆍ 성우</a></li>
-                    <li><a onclick="showBoard('OST')">ㆍ OST</a></li>
-                    <li><a onclick="showBoard('캐릭터')">ㆍ 캐릭터</a></li>
                 </ul>
             </div>
 
@@ -437,7 +483,7 @@
                 <ul class="sub-category">
                     <li><a onclick="showBoard('국내')">ㆍ 국내</a></li>
                     <li><a onclick="showBoard('일본')">ㆍ 일본</a></li>
-                    <li><a onclick="showBoard('맛집/카페')">ㆍ 맛집/카페</a></li>
+                    <li><a onclick="showBoard('맛집')">ㆍ 맛집</a></li>
                     <li><a onclick="showBoard('성지순례')">ㆍ 성지순례</a></li>
                     <li><a onclick="showBoard('쇼핑')">ㆍ 쇼핑</a></li>
                 </ul>
@@ -533,16 +579,12 @@
                     <option value="음반 / 앨범">음악 - 음반 / 앨범</option>
                     <option value="악기 리뷰">음악 - 악기 리뷰</option>
                     <option value="연주 / 연습">음악 - 연주 / 연습</option>
-                    <option value="기타 등등">음악 - 기타 등등</option>
                     <option value="분기별 신작">애니 - 분기별 신작</option>
                     <option value="명작 추천">애니 - 명작 추천</option>
                     <option value="피규어/굿즈">애니 - 피규어/굿즈</option>
-                    <option value="성우">애니 - 성우</option>
-                    <option value="OST">애니 - OST</option>
-                    <option value="캐릭터">애니 - 캐릭터</option>
                     <option value="국내">여행 - 국내</option>
                     <option value="일본">여행 - 일본</option>
-                    <option value="맛집/카페">여행 - 맛집/카페</option>
+                    <option value="맛집">여행 - 맛집</option>
                     <option value="성지순례">여행 - 성지순례</option>
                     <option value="쇼핑">여행 - 쇼핑</option>
                     <option value="일상">기타 - 일상</option>
@@ -648,6 +690,7 @@
         const ADMIN_PHONE = '01022712986';
         const MAX_LOGIN_ATTEMPTS = 5;
         const LOCK_DURATION_MS = 24 * 60 * 60 * 1000; // 24시간
+        const HOME_POST_LIMIT = 10; // 홈("전체") 화면에 보여줄 최대 글 개수
 
         let posts = [];
         let deletedPosts = [];
@@ -670,7 +713,10 @@
         // 댓글에 첨부할 이미지 (등록 전까지 임시 보관)
         let pendingCommentImage = null;
 
-        const travelCategories = ['국내', '일본', '맛집/카페', '성지순례', '쇼핑'];
+        // 알림(내 글/내 댓글에 달린 댓글·대댓글) 관련 상태
+        let notifications = [];
+
+        const travelCategories = ['국내', '일본', '맛집', '성지순례', '쇼핑'];
         // 유튜브 링크는 카테고리 상관없이 모든 글에 넣을 수 있음.
         // (여행 카테고리는 여기에 더해 지도까지 추가로 입력)
 
@@ -678,7 +724,20 @@
             checkLoginStatus();
             listenRealtimePosts();
             listenRealtimeDeletedPosts();
+            setupBackButtonTrap();
         };
+
+        /* ===================== 뒤로가기 처리 ===================== */
+        // 뒤로가기를 누르면 사이트 밖으로 나가버리던 문제 해결:
+        // 히스토리에 항상 "홈" 상태를 하나 깔아두고, popstate(뒤로가기)가 발생하면
+        // 홈 화면으로 이동시키면서 다시 상태를 채워 넣어 실제로는 사이트를 벗어나지 않게 함.
+        function setupBackButtonTrap() {
+            history.pushState({ page: 'home' }, '', location.href);
+            window.addEventListener('popstate', function() {
+                showBoard('전체');
+                history.pushState({ page: 'home' }, '', location.href);
+            });
+        }
 
         /* ===================== 실시간 데이터 ===================== */
 
@@ -689,6 +748,7 @@
                     posts.push({ id: doc.id, ...doc.data() });
                 });
                 refreshCurrentView();
+                renderNotifUI();
             }, err => {
                 console.error("Firestore 수신 오류:", err);
             });
@@ -731,10 +791,18 @@
                 const isAdmin = currentUser.phone === ADMIN_PHONE;
                 document.getElementById('authBox').innerHTML = `
                     <span style="color:#1d4ed8; font-weight:bold; font-size:13px;">👤 ${escapeHtml(currentUser.nick)}${isAdmin ? ' (관리자)' : ''}님</span>
+                    <div class="notif-wrap">
+                        <button type="button" id="notifBell" class="notif-bell-btn" onclick="toggleNotifPanel()">
+                            🔔<span id="notifDot" class="notif-dot" style="display:none;"></span>
+                        </button>
+                        <div id="notifHoverPreview" class="notif-hover-preview"></div>
+                        <div id="notifPanel" class="notif-panel"></div>
+                    </div>
                     <button type="button" onclick="showBoard('마이페이지')">마이페이지</button>
                     <button type="button" onclick="logout()">로그아웃</button>
                 `;
                 if (isAdmin) document.getElementById('adminCategoryMenu').style.display = 'block';
+                renderNotifUI();
             } else {
                 document.getElementById('adminCategoryMenu').style.display = 'none';
             }
@@ -748,6 +816,99 @@
 
         function isValidPhone(phone) {
             return /^010\d{8}$/.test(phone);
+        }
+
+        /* ===================== 알림 (댓글 / 대댓글) ===================== */
+
+        // 알림 대상:
+        // 1) 내가 쓴 글에 달린 댓글/대댓글 (내가 단 것 제외)
+        // 2) 내가 쓴 댓글에 달린 대댓글 (내가 단 것 제외)
+        function computeNotifications() {
+            notifications = [];
+            if (!currentUser) return;
+
+            posts.forEach(post => {
+                const comments = post.comments || [];
+                comments.forEach(c => {
+                    if (c.authorPhone === currentUser.phone) return; // 본인이 단 댓글/대댓글은 알림 제외
+
+                    let matched = false;
+                    let type = '';
+
+                    if (post.authorPhone === currentUser.phone) {
+                        matched = true;
+                        type = c.parentId ? '내 글에 대댓글' : '내 글에 댓글';
+                    }
+
+                    if (!matched && c.parentId) {
+                        const parent = comments.find(p => p.id === c.parentId);
+                        if (parent && parent.authorPhone === currentUser.phone) {
+                            matched = true;
+                            type = '내 댓글에 대댓글';
+                        }
+                    }
+
+                    if (matched) {
+                        notifications.push({
+                            id: c.id,
+                            postId: post.id,
+                            postTitle: post.title,
+                            type,
+                            authorNick: c.authorNick,
+                            text: c.text
+                        });
+                    }
+                });
+            });
+
+            notifications.sort((a, b) => b.id - a.id);
+        }
+
+        function renderNotifUI() {
+            if (!currentUser) return;
+            const bell = document.getElementById('notifBell');
+            if (!bell) return; // 헤더가 아직 로그인 UI로 그려지기 전이면 스킵
+
+            computeNotifications();
+
+            const lastSeen = Number(localStorage.getItem('notif_seen_' + currentUser.phone) || 0);
+            const hasUnread = notifications.some(n => n.id > lastSeen);
+            const dot = document.getElementById('notifDot');
+            if (dot) dot.style.display = hasUnread ? 'block' : 'none';
+
+            const listHtml = notifications.length === 0
+                ? `<div class="notif-empty">아직 알림이 없습니다.</div>`
+                : notifications.slice(0, 15).map(n => `
+                    <div class="notif-item" onclick="openNotification('${n.postId}')">
+                        <b>${escapeHtml(n.authorNick)}</b> · ${n.type}<br>
+                        ${escapeHtml((n.text || '').slice(0, 25))}${(n.text || '').length > 25 ? '…' : ''}
+                    </div>
+                `).join('');
+
+            const hoverEl = document.getElementById('notifHoverPreview');
+            if (hoverEl) hoverEl.innerHTML = listHtml;
+            const panelEl = document.getElementById('notifPanel');
+            if (panelEl) panelEl.innerHTML = listHtml;
+        }
+
+        function toggleNotifPanel() {
+            const panel = document.getElementById('notifPanel');
+            if (!panel) return;
+            const opening = panel.style.display !== 'block';
+            panel.style.display = opening ? 'block' : 'none';
+
+            if (opening && currentUser) {
+                const maxId = notifications.length ? notifications[0].id : Date.now();
+                localStorage.setItem('notif_seen_' + currentUser.phone, String(maxId));
+                const dot = document.getElementById('notifDot');
+                if (dot) dot.style.display = 'none';
+            }
+        }
+
+        function openNotification(postId) {
+            const panel = document.getElementById('notifPanel');
+            if (panel) panel.style.display = 'none';
+            viewPost(postId);
         }
 
         /* ===================== 로그인 시도 제한 ===================== */
@@ -1287,7 +1448,10 @@
             currentView = { type: 'list', category };
 
             const isTravel = travelCategories.includes(category);
-            const filteredPosts = category === '전체' ? posts : posts.filter(p => p.category === category);
+            const fullList = category === '전체' ? posts : posts.filter(p => p.category === category);
+            // 홈("전체") 화면은 최대 HOME_POST_LIMIT개까지만 노출
+            const isHome = category === '전체';
+            const filteredPosts = isHome ? fullList.slice(0, HOME_POST_LIMIT) : fullList;
             let mapOverviewBtn = isTravel ? `<button type="button" class="map-overview-btn" onclick="openAllMapModal('${category}')">🗺️ ${category} 지도 모아보기</button>` : '';
 
             let rowsHtml = '';
@@ -1313,11 +1477,15 @@
                 });
             }
 
+            const countLabel = isHome && fullList.length > HOME_POST_LIMIT
+                ? `최근 ${filteredPosts.length}개 (전체 ${fullList.length}개 중)`
+                : `글 ${filteredPosts.length}개`;
+
             main.innerHTML = `
                 <div class="board-card">
                     <div class="board-header">
                         <h2>📂 ${category} 목록</h2>
-                        <span style="font-size:12px; color:#64748b;">글 ${filteredPosts.length}개</span>
+                        <span style="font-size:12px; color:#64748b;">${countLabel}</span>
                     </div>
                     ${mapOverviewBtn}
                     <table class="board-table">
